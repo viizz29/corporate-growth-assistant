@@ -1,0 +1,72 @@
+{
+  "name": "corporate-growth-assistant",
+  "description": "Corporate Growth Assistant - Manage your professional profile, discover job opportunities, and optimize your resume with ATS scoring.",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest --watch=false"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.9",
+    "@mui/material": "^7.3.9",
+    "@mui/x-date-pickers": "^9.7.0",
+    "@tanstack/react-query": "^5.95.2",
+    "axios": "^1.14.0",
+    "dayjs": "^1.11.21",
+    "formik": "^2.4.9",
+    "i18next": "^26.0.3",
+    "jwt-decode": "^4.0.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-i18next": "^17.0.2",
+    "react-router-dom": "^7.13.2",
+    "react-toastify": "^11.0.5",
+    "socket.io-client": "^4.8.3",
+    "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@eslint/js": "^9.39.4",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.12.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.4.27",
+    "babel-jest": "^30.3.0",
+    "eslint": "^9.39.4",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "jest": "^30.3.0",
+    "jsdom": "^29.0.1",
+    "msw": "^2.12.14",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19",
+    "ts-jest": "^29.4.9",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.57.0",
+    "vite": "^8.0.1",
+    "vitest": "^4.1.2"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}

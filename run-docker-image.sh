@@ -1,0 +1,1 @@
+docker run --name app001 --env-file ./backend/.env.production -p 5701:5701 app001:latest

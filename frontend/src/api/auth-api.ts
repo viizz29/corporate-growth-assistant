@@ -1,0 +1,108 @@
+import api from "./client";
+
+export type UserProfileInfo = {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  isEmailVerified: boolean;
+  is2faEnabled: boolean;
+  isEmailNotificationsEnabled: boolean;
+  languagePreference?: "en" | "hi";
+  themePreference?: "light" | "dark";
+};
+
+export type UserProfileUpdateData = {
+  name: string;
+  email: string;
+};
+
+export const logoutApi = async () => {
+  await api.post("/api/v1/auth/logout");
+};
+
+export const getProfileApi = async (): Promise<UserProfileInfo> => {
+  const response = await api.get("/api/v1/users/me");
+  return response.data;
+};
+
+export const updateProfileApi = async (data: UserProfileUpdateData) => {
+  const response = await api.patch("/api/v1/users/me", data);
+  return response.data;
+};
+
+export type EmailPreferences = {
+  emailNotifications: boolean;
+};
+
+export const getEmailPreferencesApi = async (): Promise<EmailPreferences> => {
+  const response = await api.get("/api/v1/users/me/email-preferences");
+  return response.data;
+};
+
+export const updateEmailPreferencesApi = async (
+  prefs: EmailPreferences,
+): Promise<EmailPreferences> => {
+  const response = await api.put("/api/v1/users/me/email-preferences", prefs);
+  return response.data;
+};
+
+export const loginApi = async (email: string, password: string) => {
+  const response = await api.post("/api/v1/auth/login", {
+    email,
+    password,
+  });
+
+  return response.data;
+};
+
+export const registerApi = async (
+  name: string,
+  email: string,
+  password: string,
+) => {
+  const response = await api.post("/api/v1/auth/register", {
+    name,
+    email,
+    password,
+  });
+  return response;
+};
+
+export const resendEmailVerificationLink = async (email: string) => {
+  const response = await api.post("/api/v1/auth/resend-verification", {
+    email,
+  });
+  return response;
+};
+
+export const verifyEmailApi = async (token: string) => {
+  const response = await api.post("/api/v1/auth/verify-email", { token });
+  return response.data;
+};
+
+export const forgotPasswordApi = async (email: string) => {
+  const response = await api.post("/api/v1/auth/forgot-password", { email });
+  return response.data;
+};
+
+export const resetPasswordApi = async (token: string, password: string) => {
+  const response = await api.post("/api/v1/auth/reset-password", {
+    token,
+    password,
+  });
+  return response.data;
+};
+
+export const verifyOtpLoginApi = async (tempToken: string, otp: string) => {
+  const response = await api.post("/api/v1/auth/verify-otp-login", {
+    tempToken,
+    otp,
+  });
+  return response.data;
+};
+
+export const toggle2faApi = async (enabled: boolean) => {
+  const response = await api.post("/api/v1/auth/toggle-2fa", { enabled });
+  return response.data;
+};

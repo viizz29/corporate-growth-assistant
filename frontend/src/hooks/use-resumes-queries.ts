@@ -2,8 +2,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   listResumeTemplatesApi,
   generateResumeApi,
+  fetchResumePreviewApi,
   getPreviewUrl,
-  type ResumeGenerateRequest,
 } from "@/api/resumes-api";
 import { queryKeys } from "./query-keys";
 
@@ -26,4 +26,4 @@ export function useGenerateResumeMutation() {
 
 // ─── Helpers ────────────────────────────────────────────
 
-export { getPreviewUrl };
+export { getPreviewUrl, fetchResumePreviewApi };

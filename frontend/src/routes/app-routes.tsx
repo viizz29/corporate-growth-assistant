@@ -28,6 +28,7 @@ const JobAdsList = lazy(() => import("../pages/job-ads/job-ads-list"));
 const JobAdForm = lazy(() => import("../pages/job-ads/job-ad-form"));
 const AtsScoreList = lazy(() => import("../pages/ats/ats-score-list"));
 const AtsScoreDetail = lazy(() => import("../pages/ats/ats-score-detail"));
+const ResumesPage = lazy(() => import("../pages/resumes/resumes-page"));
 const Settings = lazy(() => import("../pages/settings/settings"));
 const Login = lazy(() => import("../pages/auth/login"));
 const Register = lazy(() => import("../pages/auth/register"));
@@ -112,7 +113,7 @@ export default function AppRoutes() {
         <Route element={<VerifiedRoute><MainLayout /></VerifiedRoute>}>
           <Route path="/ats" element={<AtsScoreList />} />
           <Route path="/ats/:jobAdId" element={<AtsScoreDetail />} />
-          <Route path="/resumes" element={<Dashboard />} />
+          <Route path="/resumes" element={<ResumesPage />} />
         </Route>
 
         {/* ── Verification pending (auth required) ── */}

@@ -4,12 +4,27 @@ import {
 } from "@mui/material";
 import BuildIcon from "@mui/icons-material/Build";
 import PsychologyIcon from "@mui/icons-material/Psychology";
+import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
+import SchoolIcon from "@mui/icons-material/School";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import CodeIcon from "@mui/icons-material/Code";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageWrapper from "@/components/layouts/page-wrapper";
 import PageHeader from "@/components/layouts/page-header";
 import { useJobAdQuery } from "@/hooks/use-job-ads-queries";
 import { useAtsScoreQuery, useComputeAtsScoreMutation } from "@/hooks/use-ats-queries";
+
+function RecommendationIcon({ type }: { type: string }) {
+  if (type === "skill") return <BuildIcon color="primary" sx={{ mt: 0.25 }} />;
+  if (type === "experience") return <WorkOutlineIcon color="info" sx={{ mt: 0.25 }} />;
+  if (type === "education") return <SchoolIcon color="success" sx={{ mt: 0.25 }} />;
+  return <PsychologyIcon color="secondary" sx={{ mt: 0.25 }} />;
+}
 
 function ScoreRing({ score }: { score: number }) {
   const color = score >= 70 ? "#22c55e" : score >= 40 ? "#f59e0b" : "#ef4444";
@@ -75,7 +90,7 @@ export default function AtsScoreDetailPage() {
   const handleRecompute = () => {
     if (!jobAdId) return;
     computeMutation.mutate(jobAdId, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         toast.success("Score recomputed");
       },
       onError: () => toast.error("Failed to compute score"),
@@ -182,11 +197,7 @@ export default function AtsScoreDetailPage() {
                       alignItems: "flex-start",
                     }}
                   >
-                    {rec.type === "skill" ? (
-                      <BuildIcon color="primary" sx={{ mt: 0.25 }} />
-                    ) : (
-                      <PsychologyIcon color="secondary" sx={{ mt: 0.25 }} />
-                    )}
+                    <RecommendationIcon type={rec.type} />
                     <Box sx={{ flex: 1 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
                         <Typography variant="body2" fontWeight={600}>
@@ -196,7 +207,15 @@ export default function AtsScoreDetailPage() {
                           label={rec.type}
                           size="small"
                           variant="outlined"
-                          color={rec.type === "skill" ? "primary" : "secondary"}
+                          color={
+                            rec.type === "skill"
+                              ? "primary"
+                              : rec.type === "experience"
+                                ? "info"
+                                : rec.type === "education"
+                                  ? "success"
+                                  : "secondary"
+                          }
                         />
                       </Box>
                       {rec.details && (
@@ -211,6 +230,166 @@ export default function AtsScoreDetailPage() {
             )}
           </Paper>
 
+          <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+              <Typography variant="h6">AI Feedback</Typography>
+              <Chip
+                label="AI generated"
+                size="small"
+                variant="outlined"
+                color="secondary"
+                icon={<AutoAwesomeIcon />}
+              />
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+
+            {!score.aiFeedback ? (
+              <Alert severity="info">
+                AI feedback is not available for this score. It is generated when a scoring service is configured.
+              </Alert>
+            ) : (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 0.5 }}>
+                    Summary
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {score.aiFeedback.summary}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                    Strengths
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                    {score.aiFeedback.strengths.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        No strengths identified.
+                      </Typography>
+                    ) : (
+                      score.aiFeedback.strengths.map((strength, idx) => (
+                        <Box key={idx} sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+                          <CheckCircleOutlineIcon color="success" fontSize="small" sx={{ mt: 0.2 }} />
+                          <Typography variant="body2">{strength}</Typography>
+                        </Box>
+                      ))
+                    )}
+                  </Box>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                    Weaknesses
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                    {score.aiFeedback.weaknesses.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        No weaknesses identified.
+                      </Typography>
+                    ) : (
+                      score.aiFeedback.weaknesses.map((weakness, idx) => (
+                        <Box key={idx} sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+                          <ErrorOutlineIcon color="error" fontSize="small" sx={{ mt: 0.2 }} />
+                          <Typography variant="body2">{weakness}</Typography>
+                        </Box>
+                      ))
+                    )}
+                  </Box>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                    Improvement Areas
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                    {score.aiFeedback.improvementAreas.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        No improvement areas identified.
+                      </Typography>
+                    ) : (
+                      score.aiFeedback.improvementAreas.map((item, idx) => (
+                        <Paper key={idx} variant="outlined" sx={{ p: 1.5, borderRadius: 2, display: "flex", gap: 1.5 }}>
+                          <TrendingUpIcon color="warning" fontSize="small" sx={{ mt: 0.2 }} />
+                          <Box>
+                            <Typography variant="body2" fontWeight={600}>
+                              {item.area}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {item.detail}
+                            </Typography>
+                          </Box>
+                        </Paper>
+                      ))
+                    )}
+                  </Box>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                    Skill Recommendations
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                    {score.aiFeedback.skillRecommendations.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        No skill recommendations.
+                      </Typography>
+                    ) : (
+                      score.aiFeedback.skillRecommendations.map((rec, idx) => (
+                        <Box key={idx} sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+                          <LightbulbIcon color="warning" fontSize="small" sx={{ mt: 0.2 }} />
+                          <Box>
+                            <Typography variant="body2" fontWeight={600}>
+                              {rec.skill}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {rec.why}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))
+                    )}
+                  </Box>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                    Project Suggestions
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    {score.aiFeedback.projectSuggestions.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        No project suggestions.
+                      </Typography>
+                    ) : (
+                      score.aiFeedback.projectSuggestions.map((suggestion, idx) => (
+                        <Paper key={idx} variant="outlined" sx={{ p: 2, borderRadius: 2, display: "flex", gap: 1.5 }}>
+                          <CodeIcon color="primary" sx={{ mt: 0.25 }} />
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="body2" fontWeight={600}>
+                              {suggestion.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+                              {suggestion.description}
+                            </Typography>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 1 }}>
+                              {suggestion.skills.map((skill, skillIdx) => (
+                                <Chip key={skillIdx} label={skill} size="small" variant="outlined" color="primary" />
+                              ))}
+                            </Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                              {suggestion.why}
+                            </Typography>
+                          </Box>
+                        </Paper>
+                      ))
+                    )}
+                  </Box>
+                </Box>
+              </Box>
+            )}
+          </Paper>
+
           {score.atsScore >= 70 && (
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, textAlign: "center" }}>
               <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
@@ -219,7 +398,7 @@ export default function AtsScoreDetailPage() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Your ATS score meets the threshold. You can now generate a tailored resume.
               </Typography>
-              <Button variant="contained" onClick={() => navigate("/resumes")}>
+              <Button variant="contained" onClick={() => navigate(`/resumes?jobAdId=${jobAdId}`)}>
                 Generate Resume
               </Button>
             </Paper>

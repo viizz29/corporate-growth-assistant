@@ -12,6 +12,14 @@ import { UserProjectRepository } from '../users/user-project.repository';
 import { AtsScoreRepository } from '../ats/ats-score.repository';
 import { ResumeTemplateRepository } from './resume-template.repository';
 import { GeneratedResumeRepository } from './generated-resume.repository';
+import { ResumesPdfService } from './resumes-pdf.service';
+import type { JobAdvertisement } from '../job-ads/job-advertisement.model';
+import type { User } from '../users/user.model';
+import type { UserEducation } from '../users/user-education.model';
+import type { UserProject } from '../users/user-project.model';
+import type { UserSkill } from '../users/user-skill.model';
+import type { UserWorkExperience } from '../users/user-work-experience.model';
+import type { ResumeTemplate } from './resume-template.model';
 
 @Injectable()
 export class ResumesService {
@@ -27,6 +35,7 @@ export class ResumesService {
     private readonly skillRepository: UserSkillRepository,
     private readonly projectRepository: UserProjectRepository,
     private readonly atsScoreRepository: AtsScoreRepository,
+    private readonly resumesPdfService: ResumesPdfService,
   ) {}
 
   async listTemplates(language?: string) {
@@ -40,11 +49,7 @@ export class ResumesService {
     return templates.flat();
   }
 
-  async generate(
-    userId: string,
-    jobAdId: string,
-    resumeTemplateId: string,
-  ) {
+  async generate(userId: string, jobAdId: string, resumeTemplateId: string) {
     const jobAd = await this.jobAdRepository.findByIdAndUserId(jobAdId, userId);
     if (!jobAd) {
       throw new NotFoundException('Job advertisement not found');
@@ -52,7 +57,9 @@ export class ResumesService {
 
     const template = await this.resumeTemplateRepository.findById(
       resumeTemplateId,
+      true,
     );
+
     if (!template || !template.isActive) {
       throw new NotFoundException('Resume template not found or inactive');
     }
@@ -76,6 +83,10 @@ export class ResumesService {
         this.projectRepository.findAllByUserId(userId),
       ]);
 
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const filePath = await this.buildPdf(
       user,
       jobAd,
@@ -84,6 +95,7 @@ export class ResumesService {
       skills,
       projects,
       template,
+      Number(atsScore.atsScore),
     );
 
     const resume = await this.generatedResumeRepository.create({
@@ -131,59 +143,33 @@ export class ResumesService {
   }
 
   private async buildPdf(
-    user: any,
-    jobAd: any,
-    educations: any[],
-    workExperiences: any[],
-    skills: any[],
-    projects: any[],
-    template: any,
+    user: User,
+    jobAd: JobAdvertisement,
+    educations: UserEducation[],
+    workExperiences: UserWorkExperience[],
+    skills: UserSkill[],
+    projects: UserProject[],
+    template: ResumeTemplate,
+    atsScore: number,
   ): Promise<string> {
     const dir = `./assets/resumes`;
-    const fs = await import('fs');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+    const fs = await import('fs/promises');
+    await fs.mkdir(dir, { recursive: true });
     const fileName = `resume-${user.userId}-${Date.now()}.pdf`;
     const filePath = `${dir}/${fileName}`;
 
-    const content = [
-      `Resume for ${user.name}`,
-      `Email: ${user.email}`,
-      '',
-      `--- ${template.name} (${template.language}) ---`,
-      '',
-      `Target: ${jobAd.title}`,
-      jobAd.location ? `Location: ${jobAd.location}` : '',
-      '',
-      '--- Education ---',
-      ...educations.map(
-        (e) =>
-          `${e.institution}${e.degree ? ' - ' + e.degree : ''}${e.fieldOfStudy ? ' (' + e.fieldOfStudy + ')' : ''}${e.startDate ? ' [' + e.startDate + ' - ' + (e.endDate ?? 'Present') + ']' : ''}`,
-      ),
-      '',
-      '--- Work Experience ---',
-      ...workExperiences.map(
-        (w) =>
-          `${w.role} at ${w.company}${w.startDate ? ' [' + w.startDate + ' - ' + (w.endDate ?? 'Present') + ']' : ''}${w.description ? '\n  ' + w.description : ''}`,
-      ),
-      '',
-      '--- Skills ---',
-      ...skills.map(
-        (s) =>
-          `${s.skillName}${s.proficiencyLevel ? ' (' + s.proficiencyLevel + ')' : ''}`,
-      ),
-      '',
-      '--- Projects ---',
-      ...projects.map(
-        (p) =>
-          `${p.projectName}${p.startDate ? ' [' + p.startDate + ' - ' + (p.endDate ?? 'Present') + ']' : ''}${p.description ? '\n  ' + p.description : ''}${p.techStack ? '\n  Tech: ' + p.techStack : ''}`,
-      ),
-    ]
-      .filter((line) => line !== undefined)
-      .join('\n');
+    const pdfBuffer = await this.resumesPdfService.render({
+      user,
+      jobAd,
+      educations,
+      workExperiences,
+      skills,
+      projects,
+      template,
+      atsScore,
+    });
 
-    fs.writeFileSync(filePath, content, 'utf-8');
+    await fs.writeFile(filePath, pdfBuffer);
     return filePath;
   }
 }

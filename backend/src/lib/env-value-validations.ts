@@ -41,6 +41,15 @@ export default Joi.object({
   MAIL_FROM_ADDRESS: Joi.string().email().optional(),
   MAIL_FROM_NAME: Joi.string().optional(),
 
+  OPENAI_API_KEY: Joi.string().optional(),
+  OPENAI_MODEL: Joi.string().default('gpt-4.1-mini'),
+  OPENAI_API_BASE_URL: Joi.string().uri().optional(),
+
+  AZURE_OPENAI_API_KEY: Joi.string().optional(),
+  AZURE_OPENAI_ENDPOINT: Joi.string().uri().optional(),
+  AZURE_OPENAI_DEPLOYMENT_NAME: Joi.string().optional(),
+  AZURE_OPENAI_API_VERSION: Joi.string().default('2023-05-15'),
+
   COOKIE_DOMAIN: Joi.string().default('localhost'),
   COOKIE_SECURE: Joi.boolean().default(false),
   BCRYPT_ROUNDS: Joi.number().integer().min(10).max(14).default(12),

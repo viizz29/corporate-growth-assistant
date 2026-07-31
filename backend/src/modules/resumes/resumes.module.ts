@@ -9,6 +9,10 @@ import { ResumesController } from './resumes.controller';
 import { UsersModule } from '../users/users.module';
 import { JobAdsModule } from '../job-ads/job-ads.module';
 import { AtsModule } from '../ats/ats.module';
+import { ClassicResumeRenderer } from './classic-resume.renderer';
+import { ExecutiveResumeRenderer } from './executive-resume.renderer';
+import { ModernResumeRenderer } from './modern-resume.renderer';
+import { ResumesPdfService } from './resumes-pdf.service';
 
 @Module({
   imports: [
@@ -20,6 +24,10 @@ import { AtsModule } from '../ats/ats.module';
   providers: [
     ResumeTemplateRepository,
     GeneratedResumeRepository,
+    ClassicResumeRenderer,
+    ModernResumeRenderer,
+    ExecutiveResumeRenderer,
+    ResumesPdfService,
     ResumesService,
   ],
   controllers: [ResumesController],

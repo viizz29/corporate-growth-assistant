@@ -18,9 +18,9 @@ export type ResumeGenerateRequest = {
 
 export type ResumeGenerateResponse = {
   previewId: string;
-  previewUrl: string;
-  generatedAt: string;
+  filePath: string;
   atsScore: number;
+  generatedAt: string;
 };
 
 export const listResumeTemplatesApi = async (): Promise<ResumeTemplate[]> => {
@@ -32,6 +32,15 @@ export const generateResumeApi = async (
   data: ResumeGenerateRequest,
 ): Promise<ResumeGenerateResponse> => {
   const response = await api.post("/api/v1/resumes/generate", data);
+  return response.data;
+};
+
+export const fetchResumePreviewApi = async (
+  previewId: string,
+): Promise<Blob> => {
+  const response = await api.get(`/api/v1/resumes/preview/${previewId}`, {
+    responseType: "blob",
+  });
   return response.data;
 };
 

@@ -6,14 +6,11 @@ import { AtsService } from './ats.service';
 import { AtsController } from './ats.controller';
 import { UsersModule } from '../users/users.module';
 import { JobAdsModule } from '../job-ads/job-ads.module';
+import { OpenAiService } from '../../lib/openai.service';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([AtsScore]),
-    UsersModule,
-    JobAdsModule,
-  ],
-  providers: [AtsScoreRepository, AtsService],
+  imports: [SequelizeModule.forFeature([AtsScore]), UsersModule, JobAdsModule],
+  providers: [AtsScoreRepository, AtsService, OpenAiService],
   controllers: [AtsController],
   exports: [AtsScoreRepository],
 })

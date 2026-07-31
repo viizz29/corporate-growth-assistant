@@ -8,6 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { User } from '../users/user.model';
 import { JobAdvertisement } from '../job-ads/job-advertisement.model';
+import type { AtsAiFeedback } from '../../lib/openai.service';
 
 @Table({
   tableName: 'ats_scores',
@@ -57,4 +58,11 @@ export class AtsScore extends Model {
     allowNull: true,
   })
   recommendations!: Array<{ type: string; message: string }> | null;
+
+  @Column({
+    type: DataType.JSONB,
+    allowNull: true,
+    field: 'ai_feedback',
+  })
+  aiFeedback!: AtsAiFeedback | null;
 }

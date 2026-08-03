@@ -76,6 +76,8 @@ async function bootstrap() {
   } else {
     await app.listen(process.env.PORT || 3000);
   }
+
+  console.log({ PROJECT_LOCATION: process.env.PROJECT_LOCATION });
 }
 
 bootstrap()

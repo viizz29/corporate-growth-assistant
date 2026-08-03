@@ -70,9 +70,16 @@ const imports = [
       },
     }),
   }),
-  ServeStaticModule.forRoot({
-    rootPath: process.env.FRONTEND_BUILD_PATH,
-    renderPath: '/{*path}',
+
+  ServeStaticModule.forRootAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (config: ConfigService) => [
+      {
+        rootPath: process.env.FRONTEND_BUILD_PATH,
+        renderPath: '/{*path}',
+      },
+    ],
   }),
   CacheModule.registerAsync({
     isGlobal: true,

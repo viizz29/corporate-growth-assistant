@@ -3,6 +3,7 @@ import * as Joi from 'joi';
 const DEFAULT_PORT = 3000;
 
 export default Joi.object({
+  PROJECT_LOCATION: Joi.string().required(),
   PORT: Joi.number().default(DEFAULT_PORT),
   JWT_SECRET: Joi.string().min(32).required(),
 
@@ -26,7 +27,9 @@ export default Joi.object({
   PUBLIC_HOST_WITH_PORT: Joi.string().default(
     `http://localhost:${DEFAULT_PORT}`,
   ),
-  FRONTEND_BUILD_PATH: Joi.string().default('public'),
+  FRONTEND_BUILD_PATH: Joi.string().default(
+    `${process.env.PROJECT_LOCATION}/public`,
+  ),
   VERIFICATION_TOKEN_EXPIRY_HOURS: Joi.number().integer().default(24),
   PASSWORD_RESET_TOKEN_EXPIRY_HOURS: Joi.number().integer().default(1),
   OTP_EXPIRY_MINUTES: Joi.number().integer().default(10),

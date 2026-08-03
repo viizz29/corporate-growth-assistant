@@ -18,8 +18,9 @@ function Wrapper({ children }: { children: ReactNode }) {
           isEmailNotificationsEnabled: true,
         },
         isAuthenticated: true,
-        isAuthReady: true,
+        // isEmailVerified: true,
         logout: vi.fn(),
+        isAuthReady: true,
         updateProfile: vi.fn(),
       }}
     >
@@ -47,7 +48,7 @@ describe("useAuth", () => {
   });
 
   it("throws error when used outside AuthProvider", () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
 
     function BadConsumer() {
       useAuth();

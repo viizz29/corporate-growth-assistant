@@ -20,7 +20,7 @@ import {
   useUpdateSkillMutation,
   useDeleteSkillMutation,
 } from "@/hooks/use-users-queries";
-import type { Skill, SkillInput } from "@/api/users-api";
+import type { Skill } from "@/api/users-api";
 
 const validationSchema = Yup.object({
   skillName: Yup.string().required("Skill name is required"),
@@ -53,30 +53,30 @@ export default function SkillsPage() {
     setEditingItem(null);
   };
 
-  const handleCreate = (values: SkillInput) => {
-    createMutation.mutate(values, {
-      onSuccess: () => {
-        toast.success("Skill added");
-        setModalOpen(false);
-      },
-      onError: () => toast.error("Failed to add skill"),
-    });
-  };
+  // const handleCreate = (values: SkillInput) => {
+  //   createMutation.mutate(values, {
+  //     onSuccess: () => {
+  //       toast.success("Skill added");
+  //       setModalOpen(false);
+  //     },
+  //     onError: () => toast.error("Failed to add skill"),
+  //   });
+  // };
 
-  const handleUpdate = (values: SkillInput) => {
-    if (!editingItem) return;
-    updateMutation.mutate(
-      { id: editingItem.id, data: values },
-      {
-        onSuccess: () => {
-          toast.success("Skill updated");
-          setModalOpen(false);
-          setEditingItem(null);
-        },
-        onError: () => toast.error("Failed to update skill"),
-      },
-    );
-  };
+  // const handleUpdate = (values: SkillInput) => {
+  //   if (!editingItem) return;
+  //   updateMutation.mutate(
+  //     { id: editingItem.id, data: values },
+  //     {
+  //       onSuccess: () => {
+  //         toast.success("Skill updated");
+  //         setModalOpen(false);
+  //         setEditingItem(null);
+  //       },
+  //       onError: () => toast.error("Failed to update skill"),
+  //     },
+  //   );
+  // };
 
   const handleDelete = () => {
     if (!deleteTarget) return;

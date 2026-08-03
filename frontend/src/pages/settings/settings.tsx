@@ -1,5 +1,5 @@
 import {
-  Typography, Box, Switch, FormControlLabel, Alert, Skeleton,
+  Typography, Switch, FormControlLabel, Alert, Skeleton,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";

@@ -14,7 +14,6 @@ import {
   toggle2faApi,
   logoutApi,
   type UserProfileInfo,
-  type EmailPreferences,
 } from "@/api/auth-api";
 import { queryKeys } from "./query-keys";
 
@@ -101,13 +100,8 @@ export function useForgotPasswordMutation() {
 
 export function useResetPasswordMutation() {
   return useMutation({
-    mutationFn: ({
-      token,
-      password,
-    }: {
-      token: string;
-      password: string;
-    }) => resetPasswordApi(token, password),
+    mutationFn: ({ token, password }: { token: string; password: string }) =>
+      resetPasswordApi(token, password),
   });
 }
 
@@ -125,13 +119,8 @@ export function useResendVerificationMutation() {
 
 export function useVerifyOtpLoginMutation() {
   return useMutation({
-    mutationFn: ({
-      tempToken,
-      otp,
-    }: {
-      tempToken: string;
-      otp: string;
-    }) => verifyOtpLoginApi(tempToken, otp),
+    mutationFn: ({ tempToken, otp }: { tempToken: string; otp: string }) =>
+      verifyOtpLoginApi(tempToken, otp),
   });
 }
 

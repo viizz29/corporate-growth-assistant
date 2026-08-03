@@ -6,7 +6,6 @@ import type { UserProfileInfo } from "@/api/auth-api";
 type AuthContextType = {
   user: UserProfileInfo | null;
   isAuthenticated: boolean;
-  isEmailVerified: boolean;
   isAuthReady: boolean;
   logout: () => void;
   updateProfile: (profile: UserProfileInfo) => void;
@@ -48,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         value={{
           user,
           isAuthenticated: !!user,
-          isEmailVerified: !!user?.isEmailVerified,
+          // isEmailVerified: !!user?.isEmailVerified,
           isAuthReady,
           logout,
           updateProfile,

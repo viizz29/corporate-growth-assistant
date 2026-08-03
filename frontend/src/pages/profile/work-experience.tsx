@@ -64,30 +64,30 @@ export default function WorkExperiencePage() {
     setEditingItem(null);
   };
 
-  const handleCreate = (values: WorkExperienceInput) => {
-    createMutation.mutate(values, {
-      onSuccess: () => {
-        toast.success("Work experience added");
-        setModalOpen(false);
-      },
-      onError: () => toast.error("Failed to add work experience"),
-    });
-  };
+  // const handleCreate = (values: WorkExperienceInput) => {
+  //   createMutation.mutate(values, {
+  //     onSuccess: () => {
+  //       toast.success("Work experience added");
+  //       setModalOpen(false);
+  //     },
+  //     onError: () => toast.error("Failed to add work experience"),
+  //   });
+  // };
 
-  const handleUpdate = (values: WorkExperienceInput) => {
-    if (!editingItem) return;
-    updateMutation.mutate(
-      { id: editingItem.id, data: values },
-      {
-        onSuccess: () => {
-          toast.success("Work experience updated");
-          setModalOpen(false);
-          setEditingItem(null);
-        },
-        onError: () => toast.error("Failed to update work experience"),
-      },
-    );
-  };
+  // const handleUpdate = (values: WorkExperienceInput) => {
+  //   if (!editingItem) return;
+  //   updateMutation.mutate(
+  //     { id: editingItem.id, data: values },
+  //     {
+  //       onSuccess: () => {
+  //         toast.success("Work experience updated");
+  //         setModalOpen(false);
+  //         setEditingItem(null);
+  //       },
+  //       onError: () => toast.error("Failed to update work experience"),
+  //     },
+  //   );
+  // };
 
   const handleDelete = () => {
     if (!deleteTarget) return;

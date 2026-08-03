@@ -93,9 +93,9 @@ const PageLayout = () => {
       <List sx={{ flex: 1, px: 0.5, overflowY: "auto" }}>
         {menuItems.map((item) => {
           if (item.children) {
-            const isParentActive = item.children.some(
-              (child) => pathname === child.path,
-            );
+            // const isParentActive = item.children.some(
+            //   (child) => pathname === child.path,
+            // );
             return (
               <Box key={item.label}>
                 <ListItemButton

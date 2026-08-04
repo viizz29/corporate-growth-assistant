@@ -11,9 +11,11 @@ import { UserWorkExperienceRepository } from '../users/user-work-experience.repo
 import { UserSkillRepository } from '../users/user-skill.repository';
 import { UserProjectRepository } from '../users/user-project.repository';
 import { AtsScoreRepository } from '../ats/ats-score.repository';
+import { ATS_SCORE_THRESHOLD } from '../ats/ats.service';
 import { ResumeTemplateRepository } from './resume-template.repository';
 import { GeneratedResumeRepository } from './generated-resume.repository';
 import { ResumesPdfService } from './resumes-pdf.service';
+import { ResumeTailoringService } from './resume-tailoring.service';
 import type { JobAdvertisement } from '../job-ads/job-advertisement.model';
 import type { User } from '../users/user.model';
 import type { UserEducation } from '../users/user-education.model';
@@ -21,10 +23,10 @@ import type { UserProject } from '../users/user-project.model';
 import type { UserSkill } from '../users/user-skill.model';
 import type { UserWorkExperience } from '../users/user-work-experience.model';
 import type { ResumeTemplate } from './resume-template.model';
+import type { TailoredResumeContent } from './resume-render.types';
 
 @Injectable()
 export class ResumesService {
-  private static readonly ATS_THRESHOLD = 40;
   private static readonly RESUMES_SUBDIR = 'resumes';
 
   constructor(
@@ -38,6 +40,7 @@ export class ResumesService {
     private readonly projectRepository: UserProjectRepository,
     private readonly atsScoreRepository: AtsScoreRepository,
     private readonly resumesPdfService: ResumesPdfService,
+    private readonly resumeTailoringService: ResumeTailoringService,
   ) {}
 
   async listTemplates(language?: string) {
@@ -51,11 +54,15 @@ export class ResumesService {
     return templates.flat();
   }
 
-  async list(userId: string) {
-    const resumes =
-      await this.generatedResumeRepository.findAllByUserId(userId);
+  async list(userId: string, jobAdId?: string) {
+    const resumes = await this.generatedResumeRepository.findAllByUserId(
+      userId,
+      jobAdId,
+    );
     return resumes.map((r) => ({
       id: r.id,
+      jobAdId: r.jobAdId,
+      resumeTemplateId: r.resumeTemplateId,
       jobAdvertisement: r.jobAdvertisement,
       resumeTemplate: r.resumeTemplate,
       filename: r.filename,
@@ -64,7 +71,12 @@ export class ResumesService {
     }));
   }
 
-  async generate(userId: string, jobAdId: string, resumeTemplateId: string) {
+  async generate(
+    userId: string,
+    jobAdId: string,
+    resumeTemplateId: string,
+    language?: string,
+  ) {
     const jobAd = await this.jobAdRepository.findByIdAndUserId(jobAdId, userId);
     if (!jobAd) {
       throw new NotFoundException('Job advertisement not found');
@@ -83,9 +95,9 @@ export class ResumesService {
       userId,
       jobAdId,
     );
-    if (!atsScore || Number(atsScore.atsScore) < ResumesService.ATS_THRESHOLD) {
+    if (!atsScore || Number(atsScore.atsScore) < ATS_SCORE_THRESHOLD) {
       throw new ForbiddenException(
-        `ATS score must be at least ${ResumesService.ATS_THRESHOLD} to generate a resume`,
+        `ATS score must be at least ${ATS_SCORE_THRESHOLD} to generate a resume`,
       );
     }
 
@@ -103,6 +115,16 @@ export class ResumesService {
     }
 
     const filename = this.buildFilename(jobAd, template);
+    const selectedLanguage = language ?? template.language;
+    const tailoredContent = await this.resumeTailoringService.tailor({
+      user,
+      jobAd,
+      educations,
+      workExperiences,
+      skills,
+      projects,
+      language: selectedLanguage,
+    });
     const { relativePath } = await this.buildPdf(
       user,
       jobAd,
@@ -110,8 +132,10 @@ export class ResumesService {
       workExperiences,
       skills,
       projects,
+      tailoredContent,
       template,
       Number(atsScore.atsScore),
+      selectedLanguage,
     );
 
     const resume = await this.generatedResumeRepository.create({
@@ -121,6 +145,7 @@ export class ResumesService {
       atsScore: atsScore.atsScore,
       filePath: relativePath,
       filename,
+      tailoredContent,
       generatedAt: new Date(),
     });
 
@@ -134,8 +159,6 @@ export class ResumesService {
 
   async preview(id: string, userId: string) {
     const resume = await this.generatedResumeRepository.findById(id);
-
-    console.log({ resume });
 
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException('Generated resume not found');
@@ -187,8 +210,10 @@ export class ResumesService {
     workExperiences: UserWorkExperience[],
     skills: UserSkill[],
     projects: UserProject[],
+    tailoredContent: TailoredResumeContent,
     template: ResumeTemplate,
     atsScore: number,
+    language: string,
   ): Promise<{ relativePath: string }> {
     const fs = await import('fs/promises');
     const dir = path.join(
@@ -208,8 +233,10 @@ export class ResumesService {
       workExperiences,
       skills,
       projects,
+      tailoredContent,
       template,
       atsScore,
+      language,
     });
 
     await fs.writeFile(absolutePath, pdfBuffer);

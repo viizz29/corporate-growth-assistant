@@ -5,6 +5,7 @@ import {
   generateResumeApi,
   fetchResumePreviewApi,
   getPreviewUrl,
+  getDownloadUrl,
 } from "@/api/resumes-api";
 import { queryKeys } from "./query-keys";
 
@@ -17,10 +18,23 @@ export function useResumeTemplatesQuery() {
   });
 }
 
-export function useGeneratedResumesQuery() {
+export function useGeneratedResumesQuery(jobAdId?: string) {
   return useQuery({
-    queryKey: queryKeys.resumes.list(),
-    queryFn: listGeneratedResumesApi,
+    queryKey: jobAdId
+      ? queryKeys.resumes.byJob(jobAdId)
+      : queryKeys.resumes.list(),
+    queryFn: () => listGeneratedResumesApi(jobAdId),
+  });
+}
+
+export function useGeneratedResumesByJobQuery(
+  jobAdId: string | undefined,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.resumes.byJob(jobAdId ?? ""),
+    queryFn: () => listGeneratedResumesApi(jobAdId),
+    enabled: enabled && !!jobAdId,
   });
 }
 
@@ -34,4 +48,4 @@ export function useGenerateResumeMutation() {
 
 // ─── Helpers ────────────────────────────────────────────
 
-export { getPreviewUrl, fetchResumePreviewApi };
+export { getPreviewUrl, getDownloadUrl, fetchResumePreviewApi };

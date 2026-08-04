@@ -12,7 +12,11 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
   }
 
   protected buildDocument(data: ResumeRenderData) {
-    const labels = this.getLabels(data.template.language);
+    const labels = this.getLabels(data.language);
+    const workExperiences = this.getResumeWorkExperiences(data);
+    const projects = this.getResumeProjects(data);
+    const educations = this.getResumeEducations(data);
+    const skills = this.getResumeSkills(data);
     const styles = this.createStyles({
       page: {
         paddingTop: 34,
@@ -122,7 +126,7 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
             Text,
             { style: styles.roleLine },
             [
-              `${labels.targetRole}: ${data.jobAd.title}`,
+              `${labels.targetRole}: ${this.createHeadline(data)}`,
               data.jobAd.location,
               `${labels.atsScore}: ${data.atsScore.toFixed(0)}%`,
             ]
@@ -145,12 +149,12 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
           React.createElement(
             View,
             { style: styles.primaryColumn },
-            ...(data.workExperiences.length
+            ...(workExperiences.length
               ? [
                   this.view(
                     styles.section,
                     this.text(styles.sectionTitle, labels.experience),
-                    ...data.workExperiences.map((experience) =>
+                    ...workExperiences.map((experience) =>
                       this.view(
                         styles.entry,
                         this.view(
@@ -162,7 +166,7 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                           this.text(
                             styles.entryDate,
                             this.formatDateRange(
-                              data.template.language,
+                              data.language,
                               experience.startDate,
                               experience.endDate,
                             ),
@@ -176,12 +180,12 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                   ),
                 ]
               : []),
-            ...(data.projects.length
+            ...(projects.length
               ? [
                   this.view(
                     styles.section,
                     this.text(styles.sectionTitle, labels.projects),
-                    ...data.projects.map((project) =>
+                    ...projects.map((project) =>
                       this.view(
                         styles.entry,
                         this.view(
@@ -190,7 +194,7 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                           this.text(
                             styles.entryDate,
                             this.formatDateRange(
-                              data.template.language,
+                              data.language,
                               project.startDate,
                               project.endDate,
                             ),
@@ -214,12 +218,12 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
           React.createElement(
             View,
             { style: styles.secondaryColumn },
-            ...(data.educations.length
+            ...(educations.length
               ? [
                   this.view(
                     styles.section,
                     this.text(styles.sectionTitle, labels.education),
-                    ...data.educations.map((education) =>
+                    ...educations.map((education) =>
                       this.view(
                         styles.entry,
                         this.text(styles.entryTitle, education.institution),
@@ -237,7 +241,7 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                         this.text(
                           styles.entryDate,
                           this.formatDateRange(
-                            data.template.language,
+                            data.language,
                             education.startDate,
                             education.endDate,
                           ),
@@ -247,12 +251,12 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                   ),
                 ]
               : []),
-            ...(data.skills.length
+            ...(skills.length
               ? [
                   this.view(
                     styles.section,
                     this.text(styles.sectionTitle, labels.skills),
-                    ...data.skills.map((skill) =>
+                    ...skills.map((skill) =>
                       this.text(
                         styles.skillItem,
                         skill.proficiencyLevel

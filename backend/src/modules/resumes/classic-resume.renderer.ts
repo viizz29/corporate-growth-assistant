@@ -12,7 +12,11 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
   }
 
   protected buildDocument(data: ResumeRenderData) {
-    const labels = this.getLabels(data.template.language);
+    const labels = this.getLabels(data.language);
+    const skills = this.getResumeSkills(data);
+    const workExperiences = this.getResumeWorkExperiences(data);
+    const educations = this.getResumeEducations(data);
+    const projects = this.getResumeProjects(data);
     const styles = this.createStyles({
       page: {
         paddingTop: 32,
@@ -150,7 +154,7 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
             React.createElement(
               Text,
               { style: styles.metaValue },
-              data.jobAd.title,
+              this.createHeadline(data),
             ),
             data.jobAd.location
               ? React.createElement(
@@ -171,12 +175,12 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
           this.text(styles.sectionTitle, labels.profile),
           this.text(styles.paragraph, this.createSummary(data)),
         ),
-        ...(data.workExperiences.length
+        ...(workExperiences.length
           ? [
               this.view(
                 styles.section,
                 this.text(styles.sectionTitle, labels.experience),
-                ...data.workExperiences.map((experience) =>
+                ...workExperiences.map((experience) =>
                   this.view(
                     styles.entry,
                     this.view(
@@ -188,7 +192,7 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
                       this.text(
                         styles.entryDate,
                         this.formatDateRange(
-                          data.template.language,
+                          data.language,
                           experience.startDate,
                           experience.endDate,
                         ),
@@ -202,12 +206,12 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
               ),
             ]
           : []),
-        ...(data.educations.length
+        ...(educations.length
           ? [
               this.view(
                 styles.section,
                 this.text(styles.sectionTitle, labels.education),
-                ...data.educations.map((education) =>
+                ...educations.map((education) =>
                   this.view(
                     styles.entry,
                     this.view(
@@ -216,7 +220,7 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
                       this.text(
                         styles.entryDate,
                         this.formatDateRange(
-                          data.template.language,
+                          data.language,
                           education.startDate,
                           education.endDate,
                         ),
@@ -241,7 +245,7 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
               ),
             ]
           : []),
-        ...(data.skills.length
+        ...(skills.length
           ? [
               this.view(
                 styles.section,
@@ -249,7 +253,7 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
                 React.createElement(
                   View,
                   { style: styles.skillList },
-                  ...data.skills.map((skill) =>
+                  ...skills.map((skill) =>
                     React.createElement(
                       View,
                       { key: skill.id, style: styles.skillChip },
@@ -280,7 +284,41 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
                       this.text(
                         styles.entryDate,
                         this.formatDateRange(
-                          data.template.language,
+                          data.language,
+                          project.startDate,
+                          project.endDate,
+                        ),
+                      ),
+                    ),
+                    project.description
+                      ? this.text(styles.paragraph, project.description)
+                      : null,
+                    project.techStack
+                      ? this.text(
+                          styles.entrySubtitle,
+                          `${labels.techStack}: ${project.techStack}`,
+                        )
+                      : null,
+                  ),
+                ),
+              ),
+            ]
+          : []),
+        ...(projects.length
+          ? [
+              this.view(
+                styles.section,
+                this.text(styles.sectionTitle, labels.projects),
+                ...projects.map((project) =>
+                  this.view(
+                    styles.entry,
+                    this.view(
+                      styles.entryHeader,
+                      this.text(styles.entryTitle, project.projectName),
+                      this.text(
+                        styles.entryDate,
+                        this.formatDateRange(
+                          data.language,
                           project.startDate,
                           project.endDate,
                         ),

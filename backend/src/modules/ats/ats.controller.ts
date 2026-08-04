@@ -30,6 +30,15 @@ export class AtsController {
     return this.atsService.compute(user.userId, dto.jobAdId);
   }
 
+  @Get('scores')
+  @ApiOperation({
+    summary: "List cached ATS scores for all of the user's job advertisements",
+  })
+  @ApiResponse({ status: 200, description: 'ATS scores retrieved.' })
+  listScores(@CurrentUser() user: { userId: string }) {
+    return this.atsService.listForUser(user.userId);
+  }
+
   @Get('score/:jobAdId')
   @ApiOperation({ summary: 'Get cached ATS score for a job advertisement' })
   @ApiResponse({ status: 200, description: 'ATS score retrieved.' })

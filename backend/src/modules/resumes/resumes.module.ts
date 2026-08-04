@@ -13,6 +13,8 @@ import { ClassicResumeRenderer } from './classic-resume.renderer';
 import { ExecutiveResumeRenderer } from './executive-resume.renderer';
 import { ModernResumeRenderer } from './modern-resume.renderer';
 import { ResumesPdfService } from './resumes-pdf.service';
+import { ResumeTailoringService } from './resume-tailoring.service';
+import { OpenAiService } from '../../lib/openai.service';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { ResumesPdfService } from './resumes-pdf.service';
     ModernResumeRenderer,
     ExecutiveResumeRenderer,
     ResumesPdfService,
+    ResumeTailoringService,
+    OpenAiService,
     ResumesService,
   ],
   controllers: [ResumesController],

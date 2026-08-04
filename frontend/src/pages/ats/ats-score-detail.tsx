@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import {
-  Typography, Box, Paper, Button, CircularProgress, Alert, Chip, Divider, LinearProgress, Skeleton,
+  Typography, Box, Paper, Button, CircularProgress, Alert, Chip, Divider, LinearProgress, Skeleton, IconButton,
 } from "@mui/material";
 import BuildIcon from "@mui/icons-material/Build";
 import PsychologyIcon from "@mui/icons-material/Psychology";
@@ -12,12 +12,20 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import CodeIcon from "@mui/icons-material/Code";
+import DownloadIcon from "@mui/icons-material/Download";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import HistoryIcon from "@mui/icons-material/History";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageWrapper from "@/components/layouts/page-wrapper";
 import PageHeader from "@/components/layouts/page-header";
 import { useJobAdQuery } from "@/hooks/use-job-ads-queries";
 import { useAtsScoreQuery, useComputeAtsScoreMutation } from "@/hooks/use-ats-queries";
+import {
+  useGeneratedResumesByJobQuery,
+  getPreviewUrl,
+  getDownloadUrl,
+} from "@/hooks/use-resumes-queries";
 
 function RecommendationIcon({ type }: { type: string }) {
   if (type === "skill") return <BuildIcon color="primary" sx={{ mt: 0.25 }} />;
@@ -75,6 +83,8 @@ export default function AtsScoreDetailPage() {
   const jobQuery = useJobAdQuery(jobAdId);
   const scoreQuery = useAtsScoreQuery(jobAdId);
   const computeMutation = useComputeAtsScoreMutation();
+  const resumesQuery = useGeneratedResumesByJobQuery(jobAdId);
+  const resumes = resumesQuery.data ?? [];
 
   useEffect(() => {
     if (jobAdId && scoreQuery.isError && !scoreQuery.isFetching) {
@@ -390,7 +400,83 @@ export default function AtsScoreDetailPage() {
             )}
           </Paper>
 
-          {score.atsScore >= 70 && (
+          <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <HistoryIcon color="primary" />
+                <Typography variant="h6">Generated Resumes</Typography>
+              </Box>
+              <Button size="small" variant="text" onClick={() => navigate("/resumes/history")}>
+                View All
+              </Button>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+
+            {resumesQuery.isLoading ? (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {[1, 2].map((i) => (
+                  <Skeleton key={i} variant="rounded" height={60} />
+                ))}
+              </Box>
+            ) : resumes.length === 0 ? (
+              <Alert severity="info">
+                No resumes generated for this job advertisement yet.
+              </Alert>
+            ) : (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                {resumes.map((resume) => (
+                  <Paper
+                    key={resume.id}
+                    variant="outlined"
+                    sx={{ p: 2, borderRadius: 2, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}
+                  >
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" fontWeight={600} noWrap>
+                        {resume.filename || "Untitled Resume"}
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1, mt: 0.5, flexWrap: "wrap", alignItems: "center" }}>
+                        {resume.resumeTemplate && (
+                          <Chip label={resume.resumeTemplate.name} size="small" color="primary" variant="outlined" />
+                        )}
+                        <Chip
+                          label={`ATS: ${resume.atsScore}`}
+                          size="small"
+                          color={resume.atsScore >= 70 ? "success" : resume.atsScore >= 40 ? "warning" : "error"}
+                          variant="outlined"
+                        />
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(resume.generatedAt).toLocaleString()}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+                      <IconButton
+                        size="small"
+                        component="a"
+                        href={getPreviewUrl(resume.id)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Open in new tab"
+                      >
+                        <OpenInNewIcon fontSize="small" />
+                      </IconButton>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        startIcon={<DownloadIcon />}
+                        component="a"
+                        href={getDownloadUrl(resume.id)}
+                      >
+                        Download
+                      </Button>
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
+            )}
+          </Paper>
+
+          {score.atsScore >= (score.atsThreshold ?? 40) && (
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, textAlign: "center" }}>
               <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
                 Ready to generate your resume?

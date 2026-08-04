@@ -28,6 +28,7 @@ export const queryKeys = {
   resumes: {
     all: ["resumes"] as const,
     list: () => [...resumes.all, "list"] as const,
+    byJob: (jobAdId: string) => [...resumes.all, "byJob", jobAdId] as const,
     templates: () => [...resumes.all, "templates"] as const,
     generate: (jobAdId: string, templateId: string) =>
       [...resumes.all, "generate", jobAdId, templateId] as const,

@@ -25,9 +25,17 @@ export class ResumesController {
   @ApiOperation({
     summary: 'List generated resumes for the authenticated user',
   })
+  @ApiQuery({
+    name: 'jobAdId',
+    required: false,
+    description: 'Filter resumes by job advertisement',
+  })
   @ApiResponse({ status: 200, description: 'List of generated resumes.' })
-  list(@CurrentUser() user: { userId: string }) {
-    return this.resumesService.list(user.userId);
+  list(
+    @Query('jobAdId') jobAdId: string | undefined,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.resumesService.list(user.userId, jobAdId);
   }
 
   @Get('templates')
@@ -59,15 +67,22 @@ export class ResumesController {
       user.userId,
       dto.jobAdId,
       dto.resumeTemplateId,
+      dto.language,
     );
   }
 
   @Get('preview/:previewId')
   @ApiOperation({ summary: 'Preview/download a generated resume' })
+  @ApiQuery({
+    name: 'download',
+    required: false,
+    description: 'Set to 1 to force attachment download',
+  })
   @ApiResponse({ status: 200, description: 'PDF file stream.' })
   @ApiResponse({ status: 404, description: 'Resume not found.' })
   async preview(
     @Param('previewId') previewId: string,
+    @Query('download') download: string | undefined,
     @CurrentUser() user: { userId: string },
     @Res() res: Response,
   ) {
@@ -77,9 +92,12 @@ export class ResumesController {
       user.userId,
     );
 
+    const isDownload = download === '1' || download === 'true';
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `inline; filename="${data.filename}"`,
+      'Content-Disposition': `${
+        isDownload ? 'attachment' : 'inline'
+      }; filename="${data.filename}"`,
     });
 
     createReadStream(filePath).pipe(res);

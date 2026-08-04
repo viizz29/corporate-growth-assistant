@@ -29,6 +29,7 @@ export type AtsScore = {
   recommendations: AtsRecommendation[];
   aiFeedback: AtsAiFeedback | null;
   computedAt: string;
+  atsThreshold: number;
 };
 
 export const computeAtsScoreApi = async (jobAdId: string): Promise<AtsScore> => {
@@ -38,5 +39,10 @@ export const computeAtsScoreApi = async (jobAdId: string): Promise<AtsScore> => 
 
 export const getAtsScoreApi = async (jobAdId: string): Promise<AtsScore> => {
   const response = await api.get(`/api/v1/ats/score/${jobAdId}`);
+  return response.data;
+};
+
+export const listAtsScoresApi = async (): Promise<AtsScore[]> => {
+  const response = await api.get("/api/v1/ats/scores");
   return response.data;
 };

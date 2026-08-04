@@ -8,6 +8,8 @@ import { UserSkillRepository } from '../users/user-skill.repository';
 import { UserProjectRepository } from '../users/user-project.repository';
 import { OpenAiService, AtsAiFeedback } from '../../lib/openai.service';
 
+export const ATS_SCORE_THRESHOLD = 40;
+
 @Injectable()
 export class AtsService {
   constructor(
@@ -70,7 +72,21 @@ export class AtsService {
       recommendations: saved.recommendations,
       aiFeedback: saved.aiFeedback ?? null,
       computedAt: saved.updatedAt,
+      atsThreshold: ATS_SCORE_THRESHOLD,
     };
+  }
+
+  async listForUser(userId: string) {
+    const scores = await this.atsScoreRepository.findAllByUserId(userId);
+    return scores.map((score) => ({
+      userId: score.userId,
+      jobAdId: score.jobAdId,
+      atsScore: Number(score.atsScore),
+      recommendations: score.recommendations,
+      aiFeedback: score.aiFeedback ?? null,
+      computedAt: score.updatedAt,
+      atsThreshold: ATS_SCORE_THRESHOLD,
+    }));
   }
 
   async findByUserAndJobAd(userId: string, jobAdId: string) {
@@ -84,8 +100,6 @@ export class AtsService {
       );
     }
 
-    console.log(score);
-
     return {
       userId: score.userId,
       jobAdId: score.jobAdId,
@@ -93,6 +107,7 @@ export class AtsService {
       recommendations: score.recommendations,
       aiFeedback: score.aiFeedback || null,
       computedAt: score.updatedAt,
+      atsThreshold: ATS_SCORE_THRESHOLD,
     };
   }
 

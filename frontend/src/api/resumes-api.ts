@@ -25,6 +25,8 @@ export type ResumeGenerateResponse = {
 
 export type GeneratedResume = {
   id: string;
+  jobAdId: string;
+  resumeTemplateId: string;
   jobAdvertisement: { title: string } | null;
   resumeTemplate: { name: string } | null;
   filename: string | null;
@@ -37,8 +39,12 @@ export const listResumeTemplatesApi = async (): Promise<ResumeTemplate[]> => {
   return response.data;
 };
 
-export const listGeneratedResumesApi = async (): Promise<GeneratedResume[]> => {
-  const response = await api.get("/api/v1/resumes");
+export const listGeneratedResumesApi = async (
+  jobAdId?: string,
+): Promise<GeneratedResume[]> => {
+  const response = await api.get("/api/v1/resumes", {
+    params: jobAdId ? { jobAdId } : undefined,
+  });
   return response.data;
 };
 
@@ -64,4 +70,8 @@ export const getPreviewUrl = (previewId: string): string => {
       ? ""
       : `${BACKEND_SERVER}${API_BASE_URL}`;
   return `${base}/api/v1/resumes/preview/${previewId}`;
+};
+
+export const getDownloadUrl = (previewId: string): string => {
+  return `${getPreviewUrl(previewId)}?download=1`;
 };

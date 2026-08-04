@@ -9,6 +9,7 @@ import {
 import { User } from '../users/user.model';
 import { JobAdvertisement } from '../job-ads/job-advertisement.model';
 import { ResumeTemplate } from './resume-template.model';
+import type { TailoredResumeContent } from './resume-render.types';
 
 @Table({
   tableName: 'generated_resumes',
@@ -75,6 +76,13 @@ export class GeneratedResume extends Model {
     field: 'filename',
   })
   declare filename: string | null;
+
+  @Column({
+    type: DataType.JSONB,
+    allowNull: true,
+    field: 'tailored_content',
+  })
+  tailoredContent!: TailoredResumeContent | null;
 
   @Column({
     type: DataType.DATE,

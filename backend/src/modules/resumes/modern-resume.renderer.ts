@@ -12,7 +12,11 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
   }
 
   protected buildDocument(data: ResumeRenderData) {
-    const labels = this.getLabels(data.template.language);
+    const labels = this.getLabels(data.language);
+    const skills = this.getResumeSkills(data);
+    const workExperiences = this.getResumeWorkExperiences(data);
+    const projects = this.getResumeProjects(data);
+    const educations = this.getResumeEducations(data);
     const styles = this.createStyles({
       page: {
         padding: 28,
@@ -144,7 +148,7 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
               { style: styles.sidebarTitle },
               labels.skills,
             ),
-            ...data.skills.map((skill) =>
+            ...skills.map((skill) =>
               React.createElement(
                 Text,
                 { key: skill.id, style: styles.skillPill },
@@ -160,7 +164,7 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
             React.createElement(
               Text,
               { style: styles.leadRole },
-              data.jobAd.title,
+              this.createHeadline(data),
             ),
             React.createElement(
               Text,
@@ -173,12 +177,12 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                 .filter(Boolean)
                 .join(' | '),
             ),
-            ...(data.workExperiences.length
+            ...(workExperiences.length
               ? [
                   this.view(
                     styles.section,
                     this.text(styles.sectionTitle, labels.experience),
-                    ...data.workExperiences.map((experience) =>
+                    ...workExperiences.map((experience) =>
                       this.view(
                         styles.entry,
                         this.text(
@@ -188,7 +192,7 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                         this.text(
                           styles.entryDate,
                           this.formatDateRange(
-                            data.template.language,
+                            data.language,
                             experience.startDate,
                             experience.endDate,
                           ),
@@ -201,19 +205,19 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                   ),
                 ]
               : []),
-            ...(data.projects.length
+            ...(projects.length
               ? [
                   this.view(
                     styles.section,
                     this.text(styles.sectionTitle, labels.projects),
-                    ...data.projects.map((project) =>
+                    ...projects.map((project) =>
                       this.view(
                         styles.entry,
                         this.text(styles.entryTitle, project.projectName),
                         this.text(
                           styles.entryDate,
                           this.formatDateRange(
-                            data.template.language,
+                            data.language,
                             project.startDate,
                             project.endDate,
                           ),
@@ -232,19 +236,19 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                   ),
                 ]
               : []),
-            ...(data.educations.length
+            ...(educations.length
               ? [
                   this.view(
                     styles.section,
                     this.text(styles.sectionTitle, labels.education),
-                    ...data.educations.map((education) =>
+                    ...educations.map((education) =>
                       this.view(
                         styles.entry,
                         this.text(styles.entryTitle, education.institution),
                         this.text(
                           styles.entryDate,
                           this.formatDateRange(
-                            data.template.language,
+                            data.language,
                             education.startDate,
                             education.endDate,
                           ),

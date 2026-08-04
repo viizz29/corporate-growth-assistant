@@ -3,13 +3,14 @@ import {
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageWrapper from "@/components/layouts/page-wrapper";
 import PageHeader from "@/components/layouts/page-header";
 import EmptyState from "@/components/data-display/empty-state";
 import { useJobAdsQuery } from "@/hooks/use-job-ads-queries";
-import { useAtsScoresBatchQuery, useComputeAtsScoreMutation } from "@/hooks/use-ats-queries";
+import { useAtsScoresQuery, useComputeAtsScoreMutation } from "@/hooks/use-ats-queries";
 
 function ScoreBadge({ score }: { score: number }) {
   const color = score >= 70 ? "success" : score >= 40 ? "warning" : "error";
@@ -27,17 +28,14 @@ export default function AtsScoreListPage() {
   const navigate = useNavigate();
 
   const jobAdsQuery = useJobAdsQuery();
-  const jobAdIds = jobAdsQuery.data?.map((j) => j.id) ?? [];
-
-  const scoresQuery = useAtsScoresBatchQuery(
-    jobAdIds,
-    jobAdIds.length > 0,
-  );
-
+  const scoresQuery = useAtsScoresQuery();
   const computeMutation = useComputeAtsScoreMutation();
 
   const jobs = jobAdsQuery.data ?? [];
-  const scores = scoresQuery.data ?? {};
+  const scores = scoresQuery.data ?? [];
+
+  const scoresByJobId = new Map(scores.map((score) => [score.jobAdId, score]));
+  const threshold = scores[0]?.atsThreshold ?? 40;
 
   const handleCompute = (jobId: string) => {
     computeMutation.mutate(jobId, {
@@ -67,8 +65,9 @@ export default function AtsScoreListPage() {
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {jobs.map((job) => {
-            const score = scores[job.id];
+            const score = scoresByJobId.get(job.id);
             const isComputing = computeMutation.isPending && computeMutation.variables === job.id;
+            const canGenerate = !!score && score.atsScore >= (score.atsThreshold ?? threshold);
 
             return (
               <Paper key={job.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
@@ -114,6 +113,16 @@ export default function AtsScoreListPage() {
                       >
                         <RefreshIcon fontSize="small" />
                       </IconButton>
+                    )}
+                    {canGenerate && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<AutoAwesomeIcon />}
+                        onClick={() => navigate(`/resumes?jobAdId=${job.id}`)}
+                      >
+                        Generate Resume
+                      </Button>
                     )}
                     <Button
                       variant={score ? "outlined" : "contained"}

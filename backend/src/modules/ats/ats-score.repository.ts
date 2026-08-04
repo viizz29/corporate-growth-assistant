@@ -37,6 +37,15 @@ export class AtsScoreRepository {
     return row;
   }
 
+  async findAllByUserId(userId: string): Promise<Partial<AtsScore>[]> {
+    const rows = await this.model.findAll({
+      where: { userId },
+      raw: true,
+    });
+
+    return rows as unknown as Partial<AtsScore>[];
+  }
+
   async upsert(
     userId: string,
     jobAdId: string,

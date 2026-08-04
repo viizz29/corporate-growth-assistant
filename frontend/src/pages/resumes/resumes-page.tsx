@@ -6,11 +6,13 @@ import {
 } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import DownloadIcon from "@mui/icons-material/Download";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import HistoryIcon from "@mui/icons-material/History";
 import { toast } from "react-toastify";
 import PageWrapper from "@/components/layouts/page-wrapper";
 import PageHeader from "@/components/layouts/page-header";
 import EmptyState from "@/components/data-display/empty-state";
+import PdfViewer from "@/components/pdf-viewer/pdf-viewer";
 import { useJobAdsQuery } from "@/hooks/use-job-ads-queries";
 import { useAtsScoreQuery } from "@/hooks/use-ats-queries";
 import {
@@ -18,9 +20,8 @@ import {
   useGenerateResumeMutation,
   fetchResumePreviewApi,
   getPreviewUrl,
+  getDownloadUrl,
 } from "@/hooks/use-resumes-queries";
-
-const ATS_THRESHOLD = 40;
 
 export default function ResumesPage() {
   const navigate = useNavigate();
@@ -102,12 +103,13 @@ export default function ResumesPage() {
   );
   const templates = templatesQuery.data ?? [];
   const score = scoreQuery.data;
+  const threshold = score?.atsThreshold ?? 40;
 
   const canGenerate =
     !!selectedJobAdId &&
     !!selectedTemplateId &&
     !!score &&
-    score.atsScore >= ATS_THRESHOLD;
+    score.atsScore >= threshold;
 
   const handleGenerate = () => {
     if (!selectedJobAdId || !selectedTemplateId) return;
@@ -130,7 +132,7 @@ export default function ResumesPage() {
     <PageWrapper>
       <PageHeader
         title="Resume Generation"
-        onBack={() => navigate("/")}
+        onBack={() => navigate("/ats")}
         actionLabel="Generate"
         onAction={handleGenerate}
         actionIcon={<AutoAwesomeIcon />}
@@ -183,41 +185,57 @@ export default function ResumesPage() {
               </Select>
             </FormControl>
 
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel id="resume-template-select-label">Resume Template</InputLabel>
-              <Select
-                labelId="resume-template-select-label"
-                label="Resume Template"
-                value={selectedTemplateId}
-                onChange={(event) => {
-                  setSelectedTemplateId(event.target.value as string);
-                  setGeneratedPreviewId(null);
-                }}
-                displayEmpty
-              >
-                {templates.length === 0 && (
-                  <MenuItem value="" disabled>
-                    No templates available
-                  </MenuItem>
-                )}
-                {templates.map((template) => (
-                  <MenuItem key={template.id} value={template.id}>
-                    {template.name}
-                    <Chip
-                      label={template.language === "hi" ? "Hindi" : "English"}
-                      size="small"
-                      variant="outlined"
-                      sx={{ ml: 1 }}
-                    />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {templates.length === 0 && (
+            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>
+              Resume Template
+            </Typography>
+            {templates.length === 0 ? (
               <Alert severity="warning" sx={{ mb: 2 }}>
                 No active resume templates were found on the server.
               </Alert>
+            ) : (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 2 }}>
+                {templates.map((template) => {
+                  const isSelected = template.id === selectedTemplateId;
+                  return (
+                    <Paper
+                      key={template.id}
+                      variant="outlined"
+                      onClick={() => {
+                        setSelectedTemplateId(template.id);
+                        setGeneratedPreviewId(null);
+                      }}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        cursor: "pointer",
+                        borderColor: isSelected ? "primary.main" : "divider",
+                        borderWidth: isSelected ? 2 : 1,
+                        bgcolor: isSelected ? "primary.main" : "background.paper",
+                        color: isSelected ? "primary.contrastText" : "text.primary",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        "&:hover": {
+                          borderColor: "primary.main",
+                        },
+                      }}
+                    >
+                      <Typography variant="body2" fontWeight={600}>
+                        {template.name}
+                      </Typography>
+                      <Chip
+                        label={template.language === "hi" ? "Hindi" : "English"}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          color: isSelected ? "primary.contrastText" : undefined,
+                          borderColor: isSelected ? "primary.contrastText" : undefined,
+                        }}
+                      />
+                    </Paper>
+                  );
+                })}
+              </Box>
             )}
 
             <Divider sx={{ my: 2 }} />
@@ -248,13 +266,13 @@ export default function ResumesPage() {
                   sx={{ mt: 1, height: 8, borderRadius: 4 }}
                 />
                 <Box sx={{ mt: 1 }}>
-                  {score.atsScore >= ATS_THRESHOLD ? (
+                  {score.atsScore >= threshold ? (
                     <Alert severity="success" sx={{ py: 0.5 }}>
                       Eligible to generate a resume for this job.
                     </Alert>
                   ) : (
                     <Alert severity="warning" sx={{ py: 0.5 }}>
-                      ATS score below {ATS_THRESHOLD}. Improve your profile to unlock resume generation.
+                      ATS score below {threshold}. Improve your profile to unlock resume generation.
                     </Alert>
                   )}
                 </Box>
@@ -282,21 +300,39 @@ export default function ResumesPage() {
                 <Button
                   size="small"
                   variant="text"
-                  onClick={() => navigate("/resumes/history")}
+                  startIcon={<HistoryIcon />}
+                  onClick={() =>
+                    navigate(
+                      selectedJobAdId
+                        ? `/resumes/history?jobAdId=${selectedJobAdId}`
+                        : "/resumes/history",
+                    )
+                  }
                 >
-                  View Past Resumes
+                  History
                 </Button>
                 {generatedPreviewId && (
-                  <Button
-                    size="small"
-                    variant="contained"
-                    startIcon={<DownloadIcon />}
-                    href={getPreviewUrl(generatedPreviewId)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Open PDF
-                  </Button>
+                  <>
+                    <Button
+                      size="small"
+                      variant="text"
+                      startIcon={<OpenInNewIcon />}
+                      href={getPreviewUrl(generatedPreviewId)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open PDF
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      startIcon={<DownloadIcon />}
+                      component="a"
+                      href={getDownloadUrl(generatedPreviewId)}
+                    >
+                      Download
+                    </Button>
+                  </>
                 )}
               </Box>
             </Box>
@@ -313,26 +349,11 @@ export default function ResumesPage() {
                 <Typography color="text.secondary">Loading preview...</Typography>
               </Box>
             ) : previewUrl ? (
-              <>
-                <Box
-                  sx={{
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 2,
-                    overflow: "hidden",
-                    bgcolor: "background.default",
-                  }}
-                >
-                  <iframe
-                    title="Resume preview"
-                    src={previewUrl}
-                    style={{ width: "100%", height: 600, border: 0 }}
-                  />
-                </Box>
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-                  If the PDF does not render, use the “Open PDF” button above.
-                </Typography>
-              </>
+              <PdfViewer
+                url={previewUrl}
+                title={selectedJob ? `Resume — ${selectedJob.title}` : "Resume Preview"}
+                height={600}
+              />
             ) : (
               <Box
                 sx={{
@@ -344,7 +365,7 @@ export default function ResumesPage() {
                   color: "text.secondary",
                 }}
               >
-                <PictureAsPdfIcon sx={{ fontSize: 56, mb: 2, opacity: 0.4 }} />
+                <AutoAwesomeIcon sx={{ fontSize: 56, mb: 2, opacity: 0.4 }} />
                 <Typography align="center">
                   Select a job advertisement and template, then click “Generate” to create your resume.
                 </Typography>
@@ -357,8 +378,8 @@ export default function ResumesPage() {
       {!canGenerate && (
         <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
           {selectedJob?.title
-            ? `Resume generation requires an ATS score of at least ${ATS_THRESHOLD} for “${selectedJob.title}”.`
-            : `Resume generation requires an ATS score of at least ${ATS_THRESHOLD}.`}
+            ? `Resume generation requires an ATS score of at least ${threshold} for “${selectedJob.title}”.`
+            : `Resume generation requires an ATS score of at least ${threshold}.`}
         </Typography>
       )}
     </PageWrapper>

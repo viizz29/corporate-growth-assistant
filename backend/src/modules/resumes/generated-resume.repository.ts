@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { GeneratedResume } from './generated-resume.model';
 import { JobAdvertisement } from '../job-ads/job-advertisement.model';
 import { ResumeTemplate } from './resume-template.model';
+import type { TailoredResumeContent } from './resume-render.types';
 
 type GeneratedResumeRow = {
   id: string;
@@ -12,6 +13,7 @@ type GeneratedResumeRow = {
   atsScore: string | number;
   filePath: string;
   filename: string | null;
+  tailoredContent: TailoredResumeContent | null;
   generatedAt: Date | string;
   jobAdvertisement?: { title: string } | null;
   resumeTemplate?: { name: string } | null;
@@ -25,6 +27,7 @@ type PlainGeneratedResume = {
   atsScore: string | number;
   filePath: string;
   filename: string | null;
+  tailoredContent: TailoredResumeContent | null;
   generatedAt: Date | string;
   jobAdvertisement?: { title: string } | null;
   resumeTemplate?: { name: string } | null;
@@ -44,17 +47,23 @@ export class GeneratedResumeRepository {
   async findById(id: string): Promise<GeneratedResume | null> {
     const row = await this.model.findByPk(id, { raw: true });
 
-    console.log({ row });
-
     if (!row) {
       return null;
     }
     return this.mapRow(row as unknown as GeneratedResumeRow);
   }
 
-  async findAllByUserId(userId: string): Promise<GeneratedResume[]> {
+  async findAllByUserId(
+    userId: string,
+    jobAdId?: string,
+  ): Promise<GeneratedResume[]> {
+    const where: Record<string, unknown> = { userId };
+    if (jobAdId) {
+      where.jobAdId = jobAdId;
+    }
+
     const rows = await this.model.findAll({
-      where: { userId },
+      where,
       include: [
         {
           model: JobAdvertisement,
@@ -82,6 +91,7 @@ export class GeneratedResumeRepository {
         atsScore: plain.atsScore,
         filePath: plain.filePath,
         filename: plain.filename,
+        tailoredContent: plain.tailoredContent,
         generatedAt: plain.generatedAt,
         jobAdvertisement: plain.jobAdvertisement
           ? { title: plain.jobAdvertisement.title }
@@ -102,6 +112,7 @@ export class GeneratedResumeRepository {
       atsScore: Number(row.atsScore),
       filePath: row.filePath,
       filename: row.filename,
+      tailoredContent: row.tailoredContent,
       generatedAt: new Date(row.generatedAt),
       jobAdvertisement: row.jobAdvertisement
         ? { title: row.jobAdvertisement.title }

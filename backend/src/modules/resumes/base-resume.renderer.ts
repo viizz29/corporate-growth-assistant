@@ -51,7 +51,7 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
         title: `${data.user.name} Resume`,
         author: data.user.name,
         subject: `Resume tailored for ${data.jobAd.title}`,
-        language: data.template.language,
+        language: data.language,
       },
       page,
     );
@@ -97,8 +97,32 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
   }
 
   protected createSummary(data: ResumeRenderData): string {
-    const strongestSkill = data.skills[0]?.skillName;
-    const latestRole = data.workExperiences[0]?.role;
+    return data.tailoredContent.profileSummary;
+  }
+
+  protected createHeadline(data: ResumeRenderData): string {
+    return data.tailoredContent.headline || data.jobAd.title;
+  }
+
+  protected getResumeSkills(data: ResumeRenderData) {
+    return data.tailoredContent.skills;
+  }
+
+  protected getResumeWorkExperiences(data: ResumeRenderData) {
+    return data.tailoredContent.workExperiences;
+  }
+
+  protected getResumeProjects(data: ResumeRenderData) {
+    return data.tailoredContent.projects;
+  }
+
+  protected getResumeEducations(data: ResumeRenderData) {
+    return data.tailoredContent.educations;
+  }
+
+  protected createFallbackSummary(data: ResumeRenderData): string {
+    const strongestSkill = this.getResumeSkills(data)[0]?.skillName;
+    const latestRole = this.getResumeWorkExperiences(data)[0]?.role;
 
     return [
       `${data.user.name} is preparing a targeted resume for the ${data.jobAd.title} role.`,

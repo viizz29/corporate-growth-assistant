@@ -1,31 +1,67 @@
-import { useState } from "react";
 import {
-  Typography, Box, Paper, Button, Skeleton, Chip, Divider, IconButton,
+  Typography, Box, Paper, Button, Skeleton, Chip, IconButton,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import { useNavigate } from "react-router-dom";
+import ClearIcon from "@mui/icons-material/Clear";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PageWrapper from "@/components/layouts/page-wrapper";
 import PageHeader from "@/components/layouts/page-header";
 import EmptyState from "@/components/data-display/empty-state";
-import { useGeneratedResumesQuery, getPreviewUrl } from "@/hooks/use-resumes-queries";
+import { useJobAdsQuery } from "@/hooks/use-job-ads-queries";
+import {
+  useGeneratedResumesQuery,
+  getPreviewUrl,
+  getDownloadUrl,
+} from "@/hooks/use-resumes-queries";
 
 export default function PastResumesPage() {
   const navigate = useNavigate();
-  const [previewId, setPreviewId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const jobAdId = searchParams.get("jobAdId") ?? undefined;
 
-  const resumesQuery = useGeneratedResumesQuery();
+  const jobAdsQuery = useJobAdsQuery();
+  const jobAds = jobAdsQuery.data ?? [];
+  const filteredJob = jobAdId
+    ? jobAds.find((job) => job.id === jobAdId)
+    : undefined;
+
+  const resumesQuery = useGeneratedResumesQuery(jobAdId);
   const resumes = resumesQuery.data ?? [];
+
+  const handleGenerateNew = () => {
+    navigate(jobAdId ? `/resumes?jobAdId=${jobAdId}` : "/resumes");
+  };
 
   return (
     <PageWrapper>
       <PageHeader
-        title="Past Resumes"
+        title={filteredJob ? `Resumes for ${filteredJob.title}` : "Past Resumes"}
         onBack={() => navigate("/resumes")}
         actionLabel="Generate New"
-        onAction={() => navigate("/resumes")}
+        onAction={handleGenerateNew}
       />
+
+      {jobAdId && (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+          <Chip
+            label={filteredJob ? `Job: ${filteredJob.title}` : `Job ID: ${jobAdId}`}
+            size="small"
+            color="primary"
+            variant="outlined"
+            onDelete={() => setSearchParams({}, { replace: true })}
+            deleteIcon={<ClearIcon />}
+          />
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => setSearchParams({}, { replace: true })}
+          >
+            Show all resumes
+          </Button>
+        </Box>
+      )}
 
       {resumesQuery.isLoading ? (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -35,7 +71,11 @@ export default function PastResumesPage() {
         </Box>
       ) : resumes.length === 0 ? (
         <EmptyState
-          message="No resumes generated yet. Generate your first resume to see it here."
+          message={
+            jobAdId
+              ? "No resumes generated for this job advertisement yet."
+              : "No resumes generated yet. Generate your first resume to see it here."
+          }
           severity="info"
         />
       ) : (
@@ -77,7 +117,7 @@ export default function PastResumesPage() {
                     />
                   </Box>
                   <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
-                    Generated {new Date(resume.generatedAt).toLocaleDateString()}
+                    Generated {new Date(resume.generatedAt).toLocaleString()}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0, ml: 1 }}>
@@ -96,8 +136,7 @@ export default function PastResumesPage() {
                     variant="contained"
                     startIcon={<DownloadIcon />}
                     component="a"
-                    href={getPreviewUrl(resume.id)}
-                    download
+                    href={getDownloadUrl(resume.id)}
                   >
                     Download
                   </Button>
@@ -106,36 +145,6 @@ export default function PastResumesPage() {
             </Paper>
           ))}
         </Box>
-      )}
-
-      {previewId && (
-        <Paper
-          variant="outlined"
-          sx={{ p: 3, borderRadius: 2, mt: 3 }}
-        >
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Typography variant="h6">Preview</Typography>
-            <Button size="small" onClick={() => setPreviewId(null)}>
-              Close
-            </Button>
-          </Box>
-          <Divider sx={{ mb: 2 }} />
-          <Box
-            sx={{
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-              overflow: "hidden",
-              bgcolor: "background.default",
-            }}
-          >
-            <iframe
-              title="Resume preview"
-              src={getPreviewUrl(previewId)}
-              style={{ width: "100%", height: 600, border: 0 }}
-            />
-          </Box>
-        </Paper>
       )}
 
       {resumes.length > 0 && (

@@ -57,7 +57,14 @@ const menuItems: MenuItem[] = [
   },
   { label: "Job Advertisements", path: "/job-ads", icon: <WorkIcon /> },
   { label: "ATS Scoring", path: "/ats", icon: <ScoreIcon /> },
-  { label: "Resume Generation", path: "/resumes", icon: <DescriptionIcon /> },
+  {
+    label: "Resume Generation",
+    icon: <DescriptionIcon />,
+    children: [
+      { label: "Generate", path: "/resumes", icon: <DescriptionIcon /> },
+      { label: "Past Resumes", path: "/resumes/history", icon: <DescriptionIcon /> },
+    ],
+  },
   { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
 ];
 
@@ -65,11 +72,16 @@ const PageLayout = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [profileExpanded, setProfileExpanded] = useState(true);
+  const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({
+    Profile: true,
+    "Resume Generation": false,
+  });
   const { t } = useTranslation();
   const { logout } = useAuth();
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+  const toggleParent = (label: string) =>
+    setExpandedParents((prev) => ({ ...prev, [label]: !prev[label] }));
   const { pathname } = useLocation();
 
   const currentPage = useMemo(() => {
@@ -99,14 +111,14 @@ const PageLayout = () => {
             return (
               <Box key={item.label}>
                 <ListItemButton
-                  onClick={() => setProfileExpanded((prev) => !prev)}
+                  onClick={() => toggleParent(item.label)}
                   sx={{ mx: 0.5, borderRadius: 1 }}
                 >
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={t(item.label)} />
-                  {profileExpanded ? <ExpandLess /> : <ExpandMore />}
+                  {expandedParents[item.label] ? <ExpandLess /> : <ExpandMore />}
                 </ListItemButton>
-                <Collapse in={profileExpanded} timeout="auto" unmountOnExit>
+                <Collapse in={!!expandedParents[item.label]} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
                     {item.children.map((child) => (
                       <SidebarMenuItem

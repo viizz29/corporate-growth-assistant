@@ -4,9 +4,7 @@ import { CreateJobAdDto } from './dto/create-job-ad.dto';
 
 @Injectable()
 export class JobAdsService {
-  constructor(
-    private readonly jobAdRepository: JobAdvertisementRepository,
-  ) {}
+  constructor(private readonly jobAdRepository: JobAdvertisementRepository) {}
 
   async create(userId: string, dto: CreateJobAdDto) {
     return this.jobAdRepository.create({ userId, ...dto });

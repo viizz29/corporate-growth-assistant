@@ -2,7 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ClassicResumeRenderer } from './classic-resume.renderer';
 import { ExecutiveResumeRenderer } from './executive-resume.renderer';
 import { ModernResumeRenderer } from './modern-resume.renderer';
-import type { ResumeRenderData, ResumeTemplateRenderer } from './resume-render.types';
+import type {
+  ResumeRenderData,
+  ResumeTemplateRenderer,
+} from './resume-render.types';
 
 @Injectable()
 export class ResumesPdfService {

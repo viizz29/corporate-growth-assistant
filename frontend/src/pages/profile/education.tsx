@@ -66,31 +66,6 @@ export default function EducationPage() {
     setEditingItem(null);
   };
 
-  // const handleCreate = (values: EducationInput) => {
-  //   createMutation.mutate(values, {
-  //     onSuccess: () => {
-  //       toast.success("Education entry added");
-  //       setModalOpen(false);
-  //     },
-  //     onError: () => toast.error("Failed to add education"),
-  //   });
-  // };
-
-  // const handleUpdate = (values: EducationInput) => {
-  //   if (!editingItem) return;
-  //   updateMutation.mutate(
-  //     { id: editingItem.id, data: values },
-  //     {
-  //       onSuccess: () => {
-  //         toast.success("Education entry updated");
-  //         setModalOpen(false);
-  //         setEditingItem(null);
-  //       },
-  //       onError: () => toast.error("Failed to update education"),
-  //     },
-  //   );
-  // };
-
   const handleDelete = () => {
     if (!deleteTarget) return;
     deleteMutation.mutate(deleteTarget.id, {

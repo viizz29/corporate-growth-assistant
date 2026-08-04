@@ -18,13 +18,27 @@ export type ResumeGenerateRequest = {
 
 export type ResumeGenerateResponse = {
   previewId: string;
-  filePath: string;
+  filename: string;
+  atsScore: number;
+  generatedAt: string;
+};
+
+export type GeneratedResume = {
+  id: string;
+  jobAdvertisement: { title: string } | null;
+  resumeTemplate: { name: string } | null;
+  filename: string | null;
   atsScore: number;
   generatedAt: string;
 };
 
 export const listResumeTemplatesApi = async (): Promise<ResumeTemplate[]> => {
   const response = await api.get("/api/v1/resumes/templates");
+  return response.data;
+};
+
+export const listGeneratedResumesApi = async (): Promise<GeneratedResume[]> => {
+  const response = await api.get("/api/v1/resumes");
   return response.data;
 };
 

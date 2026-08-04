@@ -1,3 +1,4 @@
+import path from 'path';
 import {
   Injectable,
   NotFoundException,
@@ -24,6 +25,7 @@ import type { ResumeTemplate } from './resume-template.model';
 @Injectable()
 export class ResumesService {
   private static readonly ATS_THRESHOLD = 40;
+  private static readonly RESUMES_SUBDIR = 'resumes';
 
   constructor(
     private readonly resumeTemplateRepository: ResumeTemplateRepository,
@@ -47,6 +49,19 @@ export class ResumesService {
       this.resumeTemplateRepository.findActiveByLanguage('hi'),
     ]);
     return templates.flat();
+  }
+
+  async list(userId: string) {
+    const resumes =
+      await this.generatedResumeRepository.findAllByUserId(userId);
+    return resumes.map((r) => ({
+      id: r.id,
+      jobAdvertisement: r.jobAdvertisement,
+      resumeTemplate: r.resumeTemplate,
+      filename: r.filename,
+      atsScore: Number(r.atsScore),
+      generatedAt: r.generatedAt,
+    }));
   }
 
   async generate(userId: string, jobAdId: string, resumeTemplateId: string) {
@@ -87,7 +102,8 @@ export class ResumesService {
       throw new NotFoundException('User not found');
     }
 
-    const filePath = await this.buildPdf(
+    const filename = this.buildFilename(jobAd, template);
+    const { relativePath } = await this.buildPdf(
       user,
       jobAd,
       educations,
@@ -103,13 +119,14 @@ export class ResumesService {
       jobAdId,
       resumeTemplateId,
       atsScore: atsScore.atsScore,
-      filePath,
+      filePath: relativePath,
+      filename,
       generatedAt: new Date(),
     });
 
     return {
       previewId: resume.id,
-      filePath: resume.filePath,
+      filename: resume.filename,
       atsScore: Number(resume.atsScore),
       generatedAt: resume.generatedAt,
     };
@@ -117,18 +134,22 @@ export class ResumesService {
 
   async preview(id: string, userId: string) {
     const resume = await this.generatedResumeRepository.findById(id);
+
+    console.log({ resume });
+
     if (!resume || resume.userId !== userId) {
       throw new NotFoundException('Generated resume not found');
     }
 
+    const absolutePath = this.resolveFilePath(resume.filePath);
     const fs = await import('fs');
-    if (!fs.existsSync(resume.filePath)) {
+    if (!fs.existsSync(absolutePath)) {
       throw new NotFoundException('Resume file not found on disk');
     }
 
     return {
       previewId: resume.id,
-      fileName: resume.filePath.split('/').pop(),
+      filename: resume.filename || `resume-${resume.id}.pdf`,
       atsScore: Number(resume.atsScore),
       generatedAt: resume.generatedAt,
     };
@@ -136,10 +157,27 @@ export class ResumesService {
 
   async getFilePath(id: string, userId: string): Promise<string> {
     const resume = await this.generatedResumeRepository.findById(id);
+
     if (!resume || resume.userId !== userId) {
-      throw new NotFoundException('Generated resume not found');
+      throw new NotFoundException('Generated resume not found d');
     }
-    return resume.filePath;
+    return this.resolveFilePath(resume.filePath);
+  }
+
+  private resolveFilePath(relativePath: string): string {
+    return path.join(process.env.STORAGE_LOCATION!, relativePath);
+  }
+
+  private buildFilename(
+    jobAd: JobAdvertisement,
+    template: ResumeTemplate,
+  ): string {
+    const slug = (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_|_$/g, '');
+    return `${slug(template.name)}_Resume_${slug(jobAd.title)}.pdf`;
   }
 
   private async buildPdf(
@@ -151,12 +189,17 @@ export class ResumesService {
     projects: UserProject[],
     template: ResumeTemplate,
     atsScore: number,
-  ): Promise<string> {
-    const dir = `./assets/resumes`;
+  ): Promise<{ relativePath: string }> {
     const fs = await import('fs/promises');
+    const dir = path.join(
+      process.env.STORAGE_LOCATION!,
+      ResumesService.RESUMES_SUBDIR,
+    );
     await fs.mkdir(dir, { recursive: true });
+
     const fileName = `resume-${user.userId}-${Date.now()}.pdf`;
-    const filePath = `${dir}/${fileName}`;
+    const relativePath = path.join(ResumesService.RESUMES_SUBDIR, fileName);
+    const absolutePath = path.join(process.env.STORAGE_LOCATION!, relativePath);
 
     const pdfBuffer = await this.resumesPdfService.render({
       user,
@@ -169,7 +212,7 @@ export class ResumesService {
       atsScore,
     });
 
-    await fs.writeFile(filePath, pdfBuffer);
-    return filePath;
+    await fs.writeFile(absolutePath, pdfBuffer);
+    return { relativePath };
   }
 }

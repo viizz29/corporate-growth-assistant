@@ -46,7 +46,7 @@ export class ResumeTemplateRepository {
     return {
       id: row.id,
       name: row.name,
-      language: row.language as ResumeTemplate['language'],
+      language: row.language,
       isActive: row.isActive,
       createdAt: row.created_at,
       updatedAt: row.updated_at,

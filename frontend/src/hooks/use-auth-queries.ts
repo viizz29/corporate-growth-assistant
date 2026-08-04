@@ -16,6 +16,7 @@ import {
   type UserProfileInfo,
 } from "@/api/auth-api";
 import { queryKeys } from "./query-keys";
+import type { AxiosError } from "axios";
 
 // ─── Queries ────────────────────────────────────────────
 
@@ -23,6 +24,17 @@ export function useProfileQuery() {
   return useQuery({
     queryKey: queryKeys.auth.profile(),
     queryFn: getProfileApi,
+    retry: (failureCount, error) => {
+      const axiosError = error as AxiosError;
+
+      // Don't retry on Unauthorized
+      if (axiosError.response?.status === 401) {
+        return false;
+      }
+
+      // Retry up to 3 times for other errors
+      return failureCount < 3;
+    },
   });
 }
 

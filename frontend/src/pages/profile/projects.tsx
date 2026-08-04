@@ -64,30 +64,6 @@ export default function ProjectsPage() {
     setEditingItem(null);
   };
 
-  // const handleCreate = (values: ProjectInput) => {
-  //   createMutation.mutate(values, {
-  //     onSuccess: () => {
-  //       toast.success("Project added");
-  //       setModalOpen(false);
-  //     },
-  //     onError: () => toast.error("Failed to add project"),
-  //   });
-  // };
-
-  // const handleUpdate = (values: ProjectInput) => {
-  //   if (!editingItem) return;
-  //   updateMutation.mutate(
-  //     { id: editingItem.id, data: values },
-  //     {
-  //       onSuccess: () => {
-  //         toast.success("Project updated");
-  //         setModalOpen(false);
-  //         setEditingItem(null);
-  //       },
-  //       onError: () => toast.error("Failed to update project"),
-  //     },
-  //   );
-  // };
 
   const handleDelete = () => {
     if (!deleteTarget) return;

@@ -124,10 +124,26 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
             View,
             { style: styles.sidebar },
             React.createElement(Text, { style: styles.name }, data.user.name),
-            React.createElement(Text, { style: styles.contact }, data.user.email),
-            React.createElement(Text, { style: styles.sidebarTitle }, labels.profile),
-            React.createElement(Text, { style: styles.sidebarText }, this.createSummary(data)),
-            React.createElement(Text, { style: styles.sidebarTitle }, labels.skills),
+            React.createElement(
+              Text,
+              { style: styles.contact },
+              data.user.email,
+            ),
+            React.createElement(
+              Text,
+              { style: styles.sidebarTitle },
+              labels.profile,
+            ),
+            React.createElement(
+              Text,
+              { style: styles.sidebarText },
+              this.createSummary(data),
+            ),
+            React.createElement(
+              Text,
+              { style: styles.sidebarTitle },
+              labels.skills,
+            ),
             ...data.skills.map((skill) =>
               React.createElement(
                 Text,
@@ -141,7 +157,11 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
           React.createElement(
             View,
             { style: styles.main },
-            React.createElement(Text, { style: styles.leadRole }, data.jobAd.title),
+            React.createElement(
+              Text,
+              { style: styles.leadRole },
+              data.jobAd.title,
+            ),
             React.createElement(
               Text,
               { style: styles.leadMeta },
@@ -153,7 +173,7 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                 .filter(Boolean)
                 .join(' | '),
             ),
-            ...data.workExperiences.length
+            ...(data.workExperiences.length
               ? [
                   this.view(
                     styles.section,
@@ -180,8 +200,8 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                     ),
                   ),
                 ]
-              : [],
-            ...data.projects.length
+              : []),
+            ...(data.projects.length
               ? [
                   this.view(
                     styles.section,
@@ -211,8 +231,8 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                     ),
                   ),
                 ]
-              : [],
-            ...data.educations.length
+              : []),
+            ...(data.educations.length
               ? [
                   this.view(
                     styles.section,
@@ -231,7 +251,12 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                         ),
                         this.text(
                           styles.entrySubtitle,
-                          [education.degree, education.fieldOfStudy ? `(${education.fieldOfStudy})` : null]
+                          [
+                            education.degree,
+                            education.fieldOfStudy
+                              ? `(${education.fieldOfStudy})`
+                              : null,
+                          ]
                             .filter(Boolean)
                             .join(' '),
                         ),
@@ -242,7 +267,7 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                     ),
                   ),
                 ]
-              : [],
+              : []),
           ),
         ),
       ),

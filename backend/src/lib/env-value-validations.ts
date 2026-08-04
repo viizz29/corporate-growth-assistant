@@ -4,6 +4,7 @@ const DEFAULT_PORT = 3000;
 
 export default Joi.object({
   PROJECT_LOCATION: Joi.string().required(),
+  STORAGE_LOCATION: Joi.string().required(),
   PORT: Joi.number().default(DEFAULT_PORT),
   JWT_SECRET: Joi.string().min(32).required(),
 

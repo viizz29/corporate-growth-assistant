@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   listResumeTemplatesApi,
+  listGeneratedResumesApi,
   generateResumeApi,
   fetchResumePreviewApi,
   getPreviewUrl,
@@ -13,6 +14,13 @@ export function useResumeTemplatesQuery() {
   return useQuery({
     queryKey: queryKeys.resumes.templates(),
     queryFn: listResumeTemplatesApi,
+  });
+}
+
+export function useGeneratedResumesQuery() {
+  return useQuery({
+    queryKey: queryKeys.resumes.list(),
+    queryFn: listGeneratedResumesApi,
   });
 }
 

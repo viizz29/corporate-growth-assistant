@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+} from '@nestjs/common';
 import { JobAdsService } from './job-ads.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { SkipEmailVerification } from '../../common/decorators/public.decorator';
@@ -22,15 +30,14 @@ export class JobAdsController {
   @ApiOperation({ summary: 'Create a new job advertisement' })
   @ApiBody({ type: CreateJobAdDto })
   @ApiResponse({ status: 201, description: 'Job advertisement created.' })
-  create(
-    @Body() dto: CreateJobAdDto,
-    @CurrentUser() user: { userId: string },
-  ) {
+  create(@Body() dto: CreateJobAdDto, @CurrentUser() user: { userId: string }) {
     return this.jobAdsService.create(user.userId, dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all job advertisements for authenticated user' })
+  @ApiOperation({
+    summary: 'List all job advertisements for authenticated user',
+  })
   @ApiResponse({ status: 200, description: 'List of job advertisements.' })
   findAll(@CurrentUser() user: { userId: string }) {
     return this.jobAdsService.findAllByUserId(user.userId);
@@ -40,10 +47,7 @@ export class JobAdsController {
   @ApiOperation({ summary: 'Get a job advertisement by ID' })
   @ApiResponse({ status: 200, description: 'Job advertisement details.' })
   @ApiResponse({ status: 404, description: 'Job advertisement not found.' })
-  findOne(
-    @Param('id') id: string,
-    @CurrentUser() user: { userId: string },
-  ) {
+  findOne(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.jobAdsService.findByIdAndUserId(id, user.userId);
   }
 
@@ -64,10 +68,7 @@ export class JobAdsController {
   @ApiOperation({ summary: 'Delete a job advertisement' })
   @ApiResponse({ status: 200, description: 'Job advertisement deleted.' })
   @ApiResponse({ status: 404, description: 'Job advertisement not found.' })
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: { userId: string },
-  ) {
+  remove(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.jobAdsService.remove(id, user.userId);
   }
 }

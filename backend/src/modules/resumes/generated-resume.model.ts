@@ -70,6 +70,13 @@ export class GeneratedResume extends Model {
   filePath!: string;
 
   @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+    field: 'filename',
+  })
+  declare filename: string | null;
+
+  @Column({
     type: DataType.DATE,
     allowNull: false,
     field: 'generated_at',

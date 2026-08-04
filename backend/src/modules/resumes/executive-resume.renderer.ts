@@ -133,7 +133,11 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
         React.createElement(
           View,
           { style: styles.summaryBand },
-          React.createElement(Text, { style: styles.summaryText }, this.createSummary(data)),
+          React.createElement(
+            Text,
+            { style: styles.summaryText },
+            this.createSummary(data),
+          ),
         ),
         React.createElement(
           View,
@@ -141,7 +145,7 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
           React.createElement(
             View,
             { style: styles.primaryColumn },
-            ...data.workExperiences.length
+            ...(data.workExperiences.length
               ? [
                   this.view(
                     styles.section,
@@ -171,8 +175,8 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                     ),
                   ),
                 ]
-              : [],
-            ...data.projects.length
+              : []),
+            ...(data.projects.length
               ? [
                   this.view(
                     styles.section,
@@ -205,12 +209,12 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                     ),
                   ),
                 ]
-              : [],
+              : []),
           ),
           React.createElement(
             View,
             { style: styles.secondaryColumn },
-            ...data.educations.length
+            ...(data.educations.length
               ? [
                   this.view(
                     styles.section,
@@ -221,7 +225,12 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                         this.text(styles.entryTitle, education.institution),
                         this.text(
                           styles.entrySubtitle,
-                          [education.degree, education.fieldOfStudy ? `(${education.fieldOfStudy})` : null]
+                          [
+                            education.degree,
+                            education.fieldOfStudy
+                              ? `(${education.fieldOfStudy})`
+                              : null,
+                          ]
                             .filter(Boolean)
                             .join(' '),
                         ),
@@ -237,8 +246,8 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                     ),
                   ),
                 ]
-              : [],
-            ...data.skills.length
+              : []),
+            ...(data.skills.length
               ? [
                   this.view(
                     styles.section,
@@ -253,7 +262,7 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                     ),
                   ),
                 ]
-              : [],
+              : []),
           ),
         ),
       ),

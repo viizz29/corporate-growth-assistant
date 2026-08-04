@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Param, Query, Res } from '@nestjs/common';
+import { createReadStream } from 'fs';
 import type { Response } from 'express';
 import { ResumesService } from './resumes.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -19,6 +20,15 @@ import {
 @SkipEmailVerification()
 export class ResumesController {
   constructor(private readonly resumesService: ResumesService) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'List generated resumes for the authenticated user',
+  })
+  @ApiResponse({ status: 200, description: 'List of generated resumes.' })
+  list(@CurrentUser() user: { userId: string }) {
+    return this.resumesService.list(user.userId);
+  }
 
   @Get('templates')
   @ApiOperation({ summary: 'List active resume templates' })
@@ -62,14 +72,16 @@ export class ResumesController {
     @Res() res: Response,
   ) {
     const data = await this.resumesService.preview(previewId, user.userId);
-    const fs = await import('fs');
-    const fileBuffer = fs.readFileSync(
-      (await this.resumesService.getFilePath(previewId, user.userId)),
+    const filePath = await this.resumesService.getFilePath(
+      previewId,
+      user.userId,
     );
+
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `inline; filename="${data.fileName}"`,
+      'Content-Disposition': `inline; filename="${data.filename}"`,
     });
-    res.send(fileBuffer);
+
+    createReadStream(filePath).pipe(res);
   }
 }

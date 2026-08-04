@@ -57,8 +57,15 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
     );
   }
 
-  protected createPage(styles: Record<string, any>, ...children: ReactElement[]) {
-    return React.createElement(Page, { size: 'A4', style: styles.page }, ...children);
+  protected createPage(
+    styles: Record<string, any>,
+    ...children: ReactElement[]
+  ) {
+    return React.createElement(
+      Page,
+      { size: 'A4', style: styles.page },
+      ...children,
+    );
   }
 
   protected getLabels(language: string): ResumeLabels {
@@ -148,10 +155,7 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
     return StyleSheet.create(styles);
   }
 
-  protected text(
-    style: any,
-    value: string,
-  ): ReactElement {
+  protected text(style: any, value: string): ReactElement {
     return React.createElement(Text, { style }, value);
   }
 
@@ -159,10 +163,6 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
     style: any,
     ...children: Array<ReactElement | null>
   ): ReactElement {
-    return React.createElement(
-      View,
-      { style },
-      ...children.filter(Boolean),
-    );
+    return React.createElement(View, { style }, ...children.filter(Boolean));
   }
 }

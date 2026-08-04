@@ -22,11 +22,7 @@ export class ProjectService {
     return project;
   }
 
-  async update(
-    id: string,
-    userId: string,
-    dto: Partial<CreateUserProjectDto>,
-  ) {
+  async update(id: string, userId: string, dto: Partial<CreateUserProjectDto>) {
     await this.findByIdAndUserId(id, userId);
     await this.projectRepository.update(id, userId, dto);
     return this.projectRepository.findByIdAndUserId(id, userId);

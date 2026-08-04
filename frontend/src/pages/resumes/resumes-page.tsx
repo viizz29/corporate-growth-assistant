@@ -278,18 +278,27 @@ export default function ResumesPage() {
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, flex: 2, minWidth: 0 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6">Preview</Typography>
-              {generatedPreviewId && (
+              <Box sx={{ display: "flex", gap: 1 }}>
                 <Button
                   size="small"
-                  variant="contained"
-                  startIcon={<DownloadIcon />}
-                  href={getPreviewUrl(generatedPreviewId)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  variant="text"
+                  onClick={() => navigate("/resumes/history")}
                 >
-                  Open PDF
+                  View Past Resumes
                 </Button>
-              )}
+                {generatedPreviewId && (
+                  <Button
+                    size="small"
+                    variant="contained"
+                    startIcon={<DownloadIcon />}
+                    href={getPreviewUrl(generatedPreviewId)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open PDF
+                  </Button>
+                )}
+              </Box>
             </Box>
             <Divider sx={{ mb: 2 }} />
 

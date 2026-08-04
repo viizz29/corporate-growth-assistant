@@ -120,7 +120,7 @@ export class OpenAiService {
 
     const url = isAzure
       ? `${this.azureEndpoint}/openai/deployments/${encodeURIComponent(
-          this.azureDeployment as string,
+          this.azureDeployment,
         )}/chat/completions?api-version=${encodeURIComponent(
           this.azureApiVersion,
         )}`
@@ -131,7 +131,7 @@ export class OpenAiService {
     };
 
     if (isAzure) {
-      headers['api-key'] = this.azureApiKey as string;
+      headers['api-key'] = this.azureApiKey;
     } else {
       headers.Authorization = `Bearer ${this.openAiApiKey}`;
     }

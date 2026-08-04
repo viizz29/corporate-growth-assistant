@@ -9,7 +9,9 @@ export class UserWorkExperienceRepository {
     private model: typeof UserWorkExperience,
   ) {}
 
-  async create(values: Partial<UserWorkExperience>): Promise<UserWorkExperience> {
+  async create(
+    values: Partial<UserWorkExperience>,
+  ): Promise<UserWorkExperience> {
     return this.model.create(values as any);
   }
 

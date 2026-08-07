@@ -66,7 +66,7 @@ export class AuthService {
     isEmailVerified: boolean;
   }): string {
     const jti = crypto.randomUUID();
-    return this.jwtService.sign({ ...payload, jti });
+    return this.jwtService.sign({ ...payload, jti }, { expiresIn: '7d' });
   }
 
   async register(

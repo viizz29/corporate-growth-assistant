@@ -59,6 +59,8 @@ export class AtsService {
       console.warn('AI feedback generation failed:', error);
     }
 
+    console.log({ aiFeedback });
+
     const saved = await this.atsScoreRepository.upsert(userId, jobAdId, {
       atsScore: score,
       recommendations,

@@ -130,8 +130,11 @@ export class OpenAiService {
       },
     ];
 
-    const content = await this.requestJsonCompletion(messages, 900);
+    const content = await this.requestJsonCompletion(messages, 10000);
     const feedback = this.parseJson<AtsAiFeedback>(content);
+
+    console.log({ content, feedback });
+
     return {
       ...(feedback ?? {}),
       rawResponse: content,
@@ -248,11 +251,7 @@ export class OpenAiService {
           input.skills,
           null,
           2,
-        )}\n\nProjects:\n${JSON.stringify(
-          input.projects,
-          null,
-          2,
-        )}`,
+        )}\n\nProjects:\n${JSON.stringify(input.projects, null, 2)}`,
       },
     ];
 

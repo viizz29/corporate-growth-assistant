@@ -23,10 +23,11 @@ describe("API client", () => {
     expect(api.defaults.withCredentials).toBe(true);
   });
 
-  it("does not redirect on 401 response", async () => {
-    const spy = vi.spyOn(window, "location", "get").mockReturnValue({
-      href: "",
-    } as Location);
+  it("does not redirect on 401 response when already on the login page", async () => {
+    const location = { href: "http://localhost/login" };
+    const spy = vi
+      .spyOn(window, "location", "get")
+      .mockReturnValue(location as Location);
     const error = { response: { status: 401 } };
 
     try {
@@ -35,7 +36,24 @@ describe("API client", () => {
       // expected rejection
     }
 
-    expect(spy).not.toHaveBeenCalled();
+    expect(location.href).toBe("http://localhost/login");
+    spy.mockRestore();
+  });
+
+  it("redirects to /login on 401 from a protected page", async () => {
+    const location = { href: "http://localhost/dashboard" };
+    const spy = vi
+      .spyOn(window, "location", "get")
+      .mockReturnValue(location as Location);
+    const error = { response: { status: 401 } };
+
+    try {
+      await api.interceptors.response.handlers![0].rejected!(error);
+    } catch {
+      // expected rejection
+    }
+
+    expect(location.href).toBe("/login");
     spy.mockRestore();
   });
 

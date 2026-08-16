@@ -3,6 +3,7 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import eslintImport from 'eslint-plugin-import'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 
@@ -20,7 +21,7 @@ export default defineConfig([
     ],
 
     plugins: {
-      import: importPlugin,
+      import: eslintImport,
     },
 
     settings: {

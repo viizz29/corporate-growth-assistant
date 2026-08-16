@@ -5,7 +5,9 @@ import { useContext } from "react";
 import { renderWithClient } from "@/test-utils";
 
 vi.mock("@/api/auth-api", () => ({
-  getProfileApi: vi.fn().mockRejectedValue(new Error("Network")),
+  getProfileApi: vi
+    .fn()
+    .mockRejectedValue({ response: { status: 401 }, message: "Unauthorized" }),
   logoutApi: vi.fn().mockResolvedValue({}),
 }));
 

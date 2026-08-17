@@ -41,21 +41,21 @@ const imports = [
       dialectOptions:
         process.env.NODE_ENV === 'production'
           ? {
-              ssl: {
-                require: true,
-                rejectUnauthorized: config.get<boolean>(
-                  'DB_SSL_REJECT_UNAUTHORIZED',
-                  true,
-                ),
-                ...(config.get<string>('DB_SSL_CA')
-                  ? {
-                      ca: require('fs').readFileSync(
-                        config.get<string>('DB_SSL_CA')!,
-                      ),
-                    }
-                  : {}),
-              },
-            }
+            ssl: {
+              require: true,
+              rejectUnauthorized: config.get<boolean>(
+                'DB_SSL_REJECT_UNAUTHORIZED',
+                true,
+              ),
+              ...(config.get<string>('DB_SSL_CA')
+                ? {
+                  ca: require('fs').readFileSync(
+                    config.get<string>('DB_SSL_CA')!,
+                  ),
+                }
+                : {}),
+            },
+          }
           : {},
 
       host: config.getOrThrow('DB_HOST'),
@@ -88,12 +88,13 @@ const imports = [
     isGlobal: true,
     useFactory: async () => {
       if (process.env.REDIS_ENABLED === 'true') {
-        const { REDIS_HOST, REDIS_PORT, REDIS_USER, REDIS_PASSWORD } =
+        const { REDIS_HOST, REDIS_PORT, REDIS_USER, REDIS_PASSWORD, APP_NAME } =
           process.env;
         const url = `redis://${REDIS_USER}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`;
         return {
           store: await redisStore({
             url,
+            keyPrefix: APP_NAME,
           }),
         };
       }
@@ -114,12 +115,14 @@ const imports = [
       ];
 
       if (process.env.REDIS_ENABLED === 'true') {
-        const { REDIS_HOST, REDIS_PORT, REDIS_USER, REDIS_PASSWORD } =
+        const { REDIS_HOST, REDIS_PORT, REDIS_USER, REDIS_PASSWORD, APP_NAME } =
           process.env;
         const url = `redis://${REDIS_USER}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`;
         return {
           throttlers,
-          storage: new ThrottlerStorageRedisService(url),
+          storage: new ThrottlerStorageRedisService(url, {
+            keyPrefix: APP_NAME
+          }),
         };
       }
 
@@ -142,4 +145,4 @@ if (process.env.SOCKETIO_ENDPOINT_ON) {
     { provide: APP_GUARD, useClass: EmailVerifiedGuard },
   ],
 })
-export class AppModule {}
+export class AppModule { }

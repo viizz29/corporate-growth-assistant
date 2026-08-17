@@ -48,6 +48,10 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/public ./public
 
+COPY --from=builder /app/src/database/sequelize/migrations ./src/database/sequelize/migrations
+COPY --from=builder /app/src/database/sequelize/sequelize.config.js ./src/database/sequelize/sequelize.config.js
+COPY --from=builder /app/.sequelizerc ./.sequelizerc
+
 # (Optional) copy .env.production
 # COPY .env.production .env.production
 

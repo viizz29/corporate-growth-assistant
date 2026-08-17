@@ -3,6 +3,7 @@ import * as Joi from 'joi';
 const DEFAULT_PORT = 3000;
 
 export default Joi.object({
+  APP_NAME: Joi.string().default('cga'),
   PROJECT_LOCATION: Joi.string().required(),
   STORAGE_LOCATION: Joi.string().required(),
   PORT: Joi.number().default(DEFAULT_PORT),

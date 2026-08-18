@@ -1,170 +1,120 @@
-# Nest + React App Boilerplate -- Frontend
+# Corporate Growth Assistant Frontend
 
-React frontend boilerplate with authentication, layout system, i18n, and testing setup. Designed to pair with a NestJS backend.
+React/Vite frontend for Corporate Growth Assistant. It gives job seekers a workspace for maintaining profile data, saving job advertisements, reviewing ATS scores, and generating or downloading tailored resume PDFs.
 
 ## Stack
 
 - React 19 + TypeScript
 - Vite
-- Material UI 7
-- Tailwind CSS
-- React Router 7
+- Material UI 7 and MUI X date pickers
+- React Router 7 with lazy-loaded pages
 - TanStack Query
 - Axios
 - Formik + Yup
-- i18next (English + Hindi)
-- Socket.IO client
-- Vitest + Testing Library
-- MSW (mock service worker)
+- i18next with English and Hindi resources
+- Socket.IO client, currently optional
+- Vitest, Testing Library, MSW
 
 ## Getting Started
 
-### Install dependencies
-
 ```bash
 npm ci
-```
-
-### Start the app
-
-```bash
+cp .env.example .env.local
 npm run dev
 ```
 
 Vite serves the app at `http://localhost:5173`.
 
-### Build for production
-
-```bash
-npm run build
-```
-
 ## Scripts
 
-```bash
-npm run dev        # start dev server
-npm run build      # type-check and build
-npm run preview    # preview production build
-npm run lint       # lint with eslint
-npm test           # run tests with vitest
-```
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Run TypeScript build checks and create `dist/` |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run Vitest once |
 
 ## Environment Variables
 
-Copy `.env.example` to `.env.local` and configure:
-
 | Variable | Description | Default |
-|---|---|---|
-| `VITE_APP_NAME` | App display name | `App Name` |
-| `VITE_MOCK_API_ON` | Set `true` to use MSW mocked APIs | `false` |
-| `VITE_BACKEND_SERVER` | NestJS backend URL | `http://localhost:3000` |
-| `VITE_API_BASE_URL` | API path prefix | `""` |
+| --- | --- | --- |
+| `VITE_APP_NAME` | App display name | `Corporate Growth Assistant` |
+| `VITE_MOCK_API_ON` | Use MSW mocks when `true` | `false` |
+| `VITE_BACKEND_SERVER` | Backend origin | `http://localhost:3000` |
+| `VITE_API_BASE_URL` | Backend base path before API routes | `/api` |
 | `VITE_SOCKETIO_ENABLED` | Enable Socket.IO connection | `false` |
 | `VITE_SOCKETIO_ENDPOINT` | Socket.IO path | `/ws` |
 
-## Folder Structure
+## User Flows
+
+- Public auth pages: login, registration, forgot/reset password, email verification, and resend verification.
+- Authenticated workspace: dashboard, profile summary, personal info, education, work experience, skills, projects, job advertisements, and settings.
+- Email-verified workspace: ATS scoring, ATS score detail, resume generation, and past resume history.
+- Preferences: language switching, light/dark theme, email notifications, and 2FA toggling.
+
+## Routes
+
+| Route | Purpose | Access |
+| --- | --- | --- |
+| `/login` | Sign in | Public only |
+| `/register` | Create account | Public only |
+| `/forgot-password` | Request reset link | Public only |
+| `/reset-password` | Complete reset | Public |
+| `/verify-email` | Verify email token | Public |
+| `/resend-verification` | Request a new verification email | Public only |
+| `/verify-email-pending` | Prompt unverified users | Authenticated |
+| `/` | Dashboard | Authenticated |
+| `/profile` | Profile summary | Authenticated |
+| `/profile/edit` | Personal info | Authenticated |
+| `/profile/education` | Education entries | Authenticated |
+| `/profile/work-experience` | Work experience entries | Authenticated |
+| `/profile/skills` | Skill entries | Authenticated |
+| `/profile/projects` | Project entries | Authenticated |
+| `/job-ads` | Saved job ads | Authenticated |
+| `/job-ads/new` | Create job ad | Authenticated |
+| `/job-ads/:id` | Edit job ad | Authenticated |
+| `/ats` | ATS score list | Verified email |
+| `/ats/:jobAdId` | ATS score detail and recommendations | Verified email |
+| `/resumes` | Generate resume | Verified email |
+| `/resumes/history` | Generated resume history | Verified email |
+| `/settings` | Account preferences | Authenticated |
+
+## Source Layout
 
 ```text
 src/
-├── api/                 # axios client and API wrappers
-├── assets/              # images and icons
-├── components/          # shared UI components
-│   ├── data-display/    # tables, stat cards, empty/loading states
-│   ├── forms/           # dynamic form components
-│   ├── layouts/         # sidebar, header, page wrappers
-│   ├── modals/          # alert, confirmation, generic modals
-│   ├── navigation/      # breadcrumbs, language switcher
-│   └── schedule/        # schedule components (placeholder)
-├── context/             # auth provider and hooks
-├── hooks/               # custom React hooks (placeholder)
-├── i18n/                # i18next config (en, hi)
-├── mocks/               # MSW mock handlers
-├── pages/               # route-level screens
-│   ├── auth/            # login, register, password reset, email verify
-│   ├── dashboard/       # dashboard page
-│   ├── misc/            # 404 page
-│   ├── profile/         # profile page
-│   └── settings/        # settings page
-├── providers/           # localStorage, socket providers
-├── routes/              # React Router definitions
-├── services/            # socket service
-├── theme/               # MUI theme and dark/light mode context
-└── utils/               # date, navigation, timezone helpers
+├── api/              # Axios client and typed API wrappers
+├── assets/           # Static image assets
+├── components/       # Shared layout, forms, data display, modals, PDF viewer
+├── context/          # Auth context and hooks
+├── hooks/            # TanStack Query hooks and query keys
+├── i18n/             # English/Hindi translation setup
+├── mocks/            # MSW handlers and test server/browser setup
+├── pages/            # Route-level screens
+├── providers/        # Local storage, preferences sync, socket provider
+├── routes/           # React Router route tree and guards
+├── services/         # Socket service
+├── theme/            # MUI theme and theme context
+└── utils/            # Date, navigation, and timezone helpers
 ```
 
-## Routing
+## API Integration
 
-Routes are defined in `src/routes/app-routes.tsx`. All page components are lazy-loaded for code splitting.
+The frontend uses typed wrappers in `src/api/`:
 
-### Public routes
+- `auth-api.ts` for account, session, email verification, reset, and 2FA calls.
+- `users-api.ts` for profile, education, work experience, skills, and projects.
+- `job-ads-api.ts` for job advertisement CRUD.
+- `ats-api.ts` for score computation and cached score retrieval.
+- `resumes-api.ts` for templates, generation, preview, download, and history.
 
-- `/login`
-- `/register`
-- `/forgot-password`
-- `/reset-password`
-- `/verify-email`
-- `/resend-verification`
-
-### Protected routes
-
-- `/` -- Dashboard
-- `/profile` -- Profile
-- `/settings` -- Redirects to `/profile`
-
-Protected pages use a `PrivateRoute` wrapper that redirects unauthenticated users to `/login`. Authenticated users visiting public auth routes are redirected to `/`.
-
-## Architecture
-
-The app entry point is `src/main.tsx`, which wraps the component tree with:
-
-- `QueryClientProvider` -- server state (TanStack Query)
-- `LocalStorageProvider` -- typed localStorage access
-- `AuthProvider` -- JWT auth context
-- `SocketProvider` -- Socket.IO connection
-- `BrowserRouter` -- routing
-
-Then `src/App.tsx` adds:
-
-- `ThemeContext.Provider` -- dark/light mode state
-- `ThemeProviderWrapper` -- MUI theme + CSS custom properties
-- `LocalizationProvider` -- dayjs date pickers
-- `ToastContainer` -- toast notifications
-
-## Auth Flow
-
-Authentication is handled in `src/context/auth-provider.tsx`:
-
-- Uses TanStack Query to fetch user profile on mount (`GET /api/v1/users/me`)
-- Hydrates auth state once the query resolves
-- Exposes `user`, `logout`, and `updateProfile` via React context
-- Redirects to login on token expiry (via the Axios client and navigate utility)
-
-The shared Axios client (`src/api/client.ts`) attaches credentials via `withCredentials: true`.
-
-## i18n
-
-Translations are configured in `src/i18n/config.ts` with support for:
-
-- **English** (`en`) -- default/fallback
-- **Hindi** (`hi`)
-
-Use the `useTranslation` hook and `t()` function to access translations in components.
+The shared Axios client sends credentials with requests and handles auth failures through the navigation utility.
 
 ## Testing
 
-Tests are written with Vitest and React Testing Library. MSW provides API mocking.
+Tests are written with Vitest and Testing Library. MSW is available for API mocking.
 
 ```bash
 npm test
 ```
-
-Tests are co-located with source files using the `*.test.ts` / `*.test.tsx` naming convention.
-
-## Docker
-
-The frontend includes a `Dockerfile` and `nginx.conf` for containerized builds:
-
-1. Builds the Vite app in a `node:20-alpine` builder stage
-2. Copies the output into an `nginx:alpine` production stage
-3. Serves static files from Nginx with SPA fallback
-4. Proxies `/api` and `/ws` requests to the backend container

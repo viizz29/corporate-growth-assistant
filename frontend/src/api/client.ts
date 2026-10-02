@@ -17,7 +17,9 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       const { href } = window.location;
       const routeName = href ? href.substring(href.lastIndexOf("/") + 1) : "";
-      if (
+      if (routeName.startsWith("reset-password")) {
+        // do nothing
+      } else if (
         ![
           "login",
           "register",

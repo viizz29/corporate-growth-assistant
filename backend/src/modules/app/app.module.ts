@@ -34,41 +34,43 @@ const imports = [
   SequelizeModule.forRootAsync({
     imports: [ConfigModule],
     inject: [ConfigService],
-    useFactory: (config: ConfigService) => ({
-      dialect: 'postgres',
-      port: 5432,
+    useFactory: (config: ConfigService) => {
+      return {
+        dialect: 'postgres',
+        port: 5432,
 
-      dialectOptions:
-        process.env.NODE_ENV === 'production'
-          ? {
-            ssl: {
-              require: true,
-              rejectUnauthorized: config.get<boolean>(
-                'DB_SSL_REJECT_UNAUTHORIZED',
-                true,
-              ),
-              ...(config.get<string>('DB_SSL_CA')
-                ? {
-                  ca: require('fs').readFileSync(
-                    config.get<string>('DB_SSL_CA')!,
+        dialectOptions:
+          config.get('DB_SSL_ENABLED', 'false') == 'true'
+            ? {
+                ssl: {
+                  require: true,
+                  rejectUnauthorized: config.get<boolean>(
+                    'DB_SSL_REJECT_UNAUTHORIZED',
+                    true,
                   ),
-                }
-                : {}),
-            },
-          }
-          : {},
+                  ...(config.get<string>('DB_SSL_CA')
+                    ? {
+                        ca: require('fs').readFileSync(
+                          config.get<string>('DB_SSL_CA')!,
+                        ),
+                      }
+                    : {}),
+                },
+              }
+            : {},
 
-      host: config.getOrThrow('DB_HOST'),
-      username: config.getOrThrow('DB_USERNAME'),
-      password: config.getOrThrow('DB_PASSWORD'),
-      database: config.getOrThrow('DB_DATABASE'),
-      timezone: '+00:00',
-      autoLoadModels: true,
-      synchronize: false,
-      define: {
-        underscored: true,
-      },
-    }),
+        host: config.getOrThrow('DB_HOST'),
+        username: config.getOrThrow('DB_USERNAME'),
+        password: config.getOrThrow('DB_PASSWORD'),
+        database: config.getOrThrow('DB_DATABASE'),
+        timezone: '+00:00',
+        autoLoadModels: true,
+        synchronize: false,
+        define: {
+          underscored: true,
+        },
+      };
+    },
   }),
   ServeStaticModule.forRootAsync({
     imports: [ConfigModule],
@@ -121,7 +123,7 @@ const imports = [
         return {
           throttlers,
           storage: new ThrottlerStorageRedisService(url, {
-            keyPrefix: APP_NAME
+            keyPrefix: APP_NAME,
           }),
         };
       }
@@ -145,4 +147,4 @@ if (process.env.SOCKETIO_ENDPOINT_ON) {
     { provide: APP_GUARD, useClass: EmailVerifiedGuard },
   ],
 })
-export class AppModule { }
+export class AppModule {}

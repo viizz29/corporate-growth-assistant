@@ -35,12 +35,15 @@ const imports = [
     imports: [ConfigModule],
     inject: [ConfigService],
     useFactory: (config: ConfigService) => {
+      const DB_SSL_ENABLED = config.get<string>('DB_SSL_ENABLED', 'false');
+
+      console.log({ DB_SSL_ENABLED });
       return {
         dialect: 'postgres',
         port: 5432,
 
         dialectOptions:
-          config.get('DB_SSL_ENABLED', 'false') == 'true'
+          DB_SSL_ENABLED == 'true'
             ? {
                 ssl: {
                   require: true,

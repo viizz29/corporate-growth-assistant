@@ -148,7 +148,7 @@ export class OpenAiService {
       description: string;
       requirements: string;
       location: string | null;
-    };
+    } | null;
     user: {
       name: string;
       email: string;
@@ -219,23 +219,31 @@ export class OpenAiService {
       {
         role: 'system',
         content:
-          'You are an expert resume strategist and technical recruiter. Tailor resumes truthfully for a target role. Use only facts present in the candidate profile. Never invent employers, projects, metrics, achievements, dates, or skills. Decide what to keep, what to omit, and how to rewrite descriptions so they sound strong, concise, and ATS-friendly for the target role. Return only valid JSON.',
+          'You are an expert resume strategist and technical recruiter. Tailor resumes truthfully for a target role, or craft a strong general purpose resume when no target role is provided. Use only facts present in the candidate profile. Never invent employers, projects, metrics, achievements, dates, or skills. Decide what to keep, what to omit, and how to rewrite descriptions so they sound strong, concise, and ATS-friendly. Return only valid JSON.',
       },
       {
         role: 'user',
-        content: `Tailor this candidate resume for the target role and return only valid JSON matching this schema:\n${JSON.stringify(
+        content: `${
+          input.jobAd
+            ? 'Tailor this candidate resume for the target role'
+            : 'Build a strong general purpose resume for this candidate'
+        } and return only valid JSON matching this schema:\n${JSON.stringify(
           responseShape,
           null,
           2,
-        )}\n\nRules:\n- Output all prose in ${input.language === 'hi' ? 'Hindi' : 'English'}.\n- Headline must be at most 12 words.\n- Profile summary must be 2 to 3 sentences.\n- Select only the most relevant skills, work experiences, projects, and educations for this job.\n- Prefer 6 to 12 skills, 2 to 4 work experiences, 2 to 4 projects, and 1 to 3 educations when enough relevant options exist.\n- rewrittenDescription must stay faithful to the original content while emphasizing relevance to the job.\n- relevanceReason should be short and specific.\n- If an item's original description is empty, keep rewrittenDescription as null.\n- Every omitted item should appear in omittedItemIds.\n- Do not include markdown or explanatory text.`,
+        )}\n\nRules:\n- Output all prose in ${input.language === 'hi' ? 'Hindi' : 'English'}.\n- Headline must be at most 12 words.\n- Profile summary must be 2 to 3 sentences.\n- Select the most relevant skills, work experiences, projects, and educations${
+          input.jobAd ? ' for this job' : ' to present the candidate broadly'
+        }.\n- Prefer 6 to 12 skills, 2 to 4 work experiences, 2 to 4 projects, and 1 to 3 educations when enough relevant options exist.\n- rewrittenDescription must stay faithful to the original content while emphasizing relevance${
+          input.jobAd ? ' to the job' : ' and impact'
+        }.\n- relevanceReason should be short and specific.\n- If an item's original description is empty, keep rewrittenDescription as null.\n- Every omitted item should appear in omittedItemIds.\n- Do not include markdown or explanatory text.`,
       },
       {
         role: 'user',
-        content: `Target job:\n${JSON.stringify(
-          input.jobAd,
-          null,
-          2,
-        )}\n\nCandidate basics:\n${JSON.stringify(
+        content: `${
+          input.jobAd
+            ? `Target job:\n${JSON.stringify(input.jobAd, null, 2)}`
+            : 'Target: general purpose resume not tied to a specific job advertisement. Present the candidate broadly and comprehensively.'
+        }\n\nCandidate basics:\n${JSON.stringify(
           input.user,
           null,
           2,

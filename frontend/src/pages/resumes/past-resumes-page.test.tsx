@@ -71,12 +71,12 @@ const defaultResumes: GeneratedResume[] = [
   },
   {
     id: "r2",
-    jobAdId: "job2",
+    jobAdId: null,
     resumeTemplateId: "t2",
     jobAdvertisement: null,
     resumeTemplate: null,
     filename: null,
-    atsScore: 30,
+    atsScore: 0,
     generatedAt: "2025-01-02T00:00:00Z",
   },
 ];
@@ -110,7 +110,8 @@ describe("PastResumesPage", () => {
     expect(screen.getByText("Modern")).toBeInTheDocument();
     expect(screen.getByText("Frontend Engineer")).toBeInTheDocument();
     expect(screen.getByText("ATS: 82")).toBeInTheDocument();
-    expect(screen.getByText("ATS: 30")).toBeInTheDocument();
+    expect(screen.getByText("General Purpose")).toBeInTheDocument();
+    expect(screen.queryByText("ATS: 0")).not.toBeInTheDocument();
     expect(screen.getByText("2 resumes generated")).toBeInTheDocument();
   });
 

@@ -149,25 +149,27 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
             React.createElement(
               Text,
               { style: styles.metaLabel },
-              labels.targetRole,
+              data.jobAd ? labels.targetRole : labels.headline,
             ),
             React.createElement(
               Text,
               { style: styles.metaValue },
               this.createHeadline(data),
             ),
-            data.jobAd.location
+            data.jobAd?.location
               ? React.createElement(
                   Text,
                   { style: styles.metaSecondary },
                   data.jobAd.location,
                 )
               : null,
-            React.createElement(
-              Text,
-              { style: styles.metaSecondary },
-              `${labels.atsScore}: ${data.atsScore.toFixed(0)}%`,
-            ),
+            data.jobAd
+              ? React.createElement(
+                  Text,
+                  { style: styles.metaSecondary },
+                  `${labels.atsScore}: ${data.atsScore.toFixed(0)}%`,
+                )
+              : null,
           ),
         ),
         this.view(

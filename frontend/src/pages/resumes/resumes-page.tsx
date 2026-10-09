@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Typography, Box, Paper, Button, CircularProgress, Alert, Chip, Divider,
   Skeleton, FormControl, InputLabel, Select, MenuItem, LinearProgress,
+  ToggleButton, ToggleButtonGroup,
 } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -11,17 +12,19 @@ import HistoryIcon from "@mui/icons-material/History";
 import { toast } from "react-toastify";
 import PageWrapper from "@/components/layouts/page-wrapper";
 import PageHeader from "@/components/layouts/page-header";
-import EmptyState from "@/components/data-display/empty-state";
 import PdfViewer from "@/components/pdf-viewer/pdf-viewer";
 import { useJobAdsQuery } from "@/hooks/use-job-ads-queries";
 import { useAtsScoreQuery } from "@/hooks/use-ats-queries";
 import {
   useResumeTemplatesQuery,
   useGenerateResumeMutation,
+  useGenerateGeneralResumeMutation,
   fetchResumePreviewApi,
   getPreviewUrl,
   getDownloadUrl,
 } from "@/hooks/use-resumes-queries";
+
+type ResumeMode = "job" | "general";
 
 export default function ResumesPage() {
   const navigate = useNavigate();
@@ -30,9 +33,11 @@ export default function ResumesPage() {
   const jobAdsQuery = useJobAdsQuery();
   const templatesQuery = useResumeTemplatesQuery();
   const generateMutation = useGenerateResumeMutation();
+  const generateGeneralMutation = useGenerateGeneralResumeMutation();
 
   const jobAds = jobAdsQuery.data ?? [];
 
+  const [mode, setMode] = useState<ResumeMode>("job");
   const [selectedJobAdId, setSelectedJobAdId] = useState<string>(() => {
     const fromParam = searchParams.get("jobAdId");
     return fromParam ?? "";
@@ -105,21 +110,38 @@ export default function ResumesPage() {
   const score = scoreQuery.data;
   const threshold = score?.atsThreshold ?? 40;
 
+  const isGenerating =
+    generateMutation.isPending || generateGeneralMutation.isPending;
+
   const canGenerate =
-    !!selectedJobAdId &&
     !!selectedTemplateId &&
-    !!score &&
-    score.atsScore >= threshold;
+    (mode === "general" ||
+      (!!selectedJobAdId && !!score && score.atsScore >= threshold));
 
   const handleGenerate = () => {
-    if (!selectedJobAdId || !selectedTemplateId) return;
+    if (!selectedTemplateId) return;
+
+    const onSuccess = (data: { previewId: string }) => {
+      setGeneratedPreviewId(data.previewId);
+      toast.success("Resume generated successfully");
+    };
+
+    if (mode === "general") {
+      generateGeneralMutation.mutate(
+        { resumeTemplateId: selectedTemplateId },
+        {
+          onSuccess,
+          onError: () => toast.error("Failed to generate resume"),
+        },
+      );
+      return;
+    }
+
+    if (!selectedJobAdId) return;
     generateMutation.mutate(
       { jobAdId: selectedJobAdId, resumeTemplateId: selectedTemplateId },
       {
-        onSuccess: (data) => {
-          setGeneratedPreviewId(data.previewId);
-          toast.success("Resume generated successfully");
-        },
+        onSuccess,
         onError: () => toast.error("Failed to generate resume"),
       },
     );
@@ -143,11 +165,6 @@ export default function ResumesPage() {
           <Skeleton variant="rounded" height={48} />
           <Skeleton variant="rounded" height={300} />
         </Box>
-      ) : jobAds.length === 0 ? (
-        <EmptyState
-          message="No job advertisements found. Add a job ad and compute its ATS score before generating a resume."
-          severity="info"
-        />
       ) : (
         <Box
           sx={{
@@ -166,24 +183,49 @@ export default function ResumesPage() {
             </Typography>
             <Divider sx={{ mb: 2 }} />
 
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel id="resume-job-select-label">Job Advertisement</InputLabel>
-              <Select
-                labelId="resume-job-select-label"
-                label="Job Advertisement"
-                value={selectedJobAdId}
-                onChange={(event) => {
-                  setSelectedJobAdId(event.target.value as string);
-                  setGeneratedPreviewId(null);
-                }}
-              >
-                {jobAds.map((job) => (
-                  <MenuItem key={job.id} value={job.id}>
-                    {job.title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <ToggleButtonGroup
+              value={mode}
+              exclusive
+              fullWidth
+              size="small"
+              color="primary"
+              onChange={(_event, next: ResumeMode | null) => {
+                if (!next) return;
+                setMode(next);
+                setGeneratedPreviewId(null);
+              }}
+              sx={{ mb: 2 }}
+            >
+              <ToggleButton value="job">Tailor to a job</ToggleButton>
+              <ToggleButton value="general">General purpose</ToggleButton>
+            </ToggleButtonGroup>
+
+            {mode === "job" &&
+              (jobAds.length === 0 ? (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  No job advertisements found. Add a job ad and compute its ATS
+                  score, or switch to a general purpose resume.
+                </Alert>
+              ) : (
+                <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                  <InputLabel id="resume-job-select-label">Job Advertisement</InputLabel>
+                  <Select
+                    labelId="resume-job-select-label"
+                    label="Job Advertisement"
+                    value={selectedJobAdId}
+                    onChange={(event) => {
+                      setSelectedJobAdId(event.target.value as string);
+                      setGeneratedPreviewId(null);
+                    }}
+                  >
+                    {jobAds.map((job) => (
+                      <MenuItem key={job.id} value={job.id}>
+                        {job.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ))}
 
             <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>
               Resume Template
@@ -240,6 +282,16 @@ export default function ResumesPage() {
 
             <Divider sx={{ my: 2 }} />
 
+            {mode === "general" && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                A general purpose resume uses your full profile — all education,
+                work experience, skills, and projects — and does not require a
+                job advertisement or ATS score.
+              </Alert>
+            )}
+
+            {mode === "job" && (
+              <>
             <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
               ATS Score
             </Typography>
@@ -290,6 +342,8 @@ export default function ResumesPage() {
                   </Button>
                 </Box>
               </Alert>
+                )}
+              </>
             )}
           </Paper>
 
@@ -338,7 +392,7 @@ export default function ResumesPage() {
             </Box>
             <Divider sx={{ mb: 2 }} />
 
-            {generateMutation.isPending ? (
+            {isGenerating ? (
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 6 }}>
                 <CircularProgress sx={{ mb: 2 }} />
                 <Typography color="text.secondary">Generating your resume...</Typography>
@@ -351,7 +405,13 @@ export default function ResumesPage() {
             ) : previewUrl ? (
               <PdfViewer
                 url={previewUrl}
-                title={selectedJob ? `Resume — ${selectedJob.title}` : "Resume Preview"}
+                title={
+                  mode === "general"
+                    ? "General Purpose Resume"
+                    : selectedJob
+                      ? `Resume — ${selectedJob.title}`
+                      : "Resume Preview"
+                }
                 height={600}
               />
             ) : (
@@ -367,7 +427,9 @@ export default function ResumesPage() {
               >
                 <AutoAwesomeIcon sx={{ fontSize: 56, mb: 2, opacity: 0.4 }} />
                 <Typography align="center">
-                  Select a job advertisement and template, then click “Generate” to create your resume.
+                  {mode === "general"
+                    ? "Select a template, then click “Generate” to create a general purpose resume from your full profile."
+                    : "Select a job advertisement and template, then click “Generate” to create your resume."}
                 </Typography>
               </Box>
             )}
@@ -375,7 +437,7 @@ export default function ResumesPage() {
         </Box>
       )}
 
-      {!canGenerate && (
+      {mode === "job" && !canGenerate && (
         <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
           {selectedJob?.title
             ? `Resume generation requires an ATS score of at least ${threshold} for “${selectedJob.title}”.`

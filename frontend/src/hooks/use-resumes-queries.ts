@@ -3,6 +3,7 @@ import {
   listResumeTemplatesApi,
   listGeneratedResumesApi,
   generateResumeApi,
+  generateGeneralResumeApi,
   fetchResumePreviewApi,
   getPreviewUrl,
   getDownloadUrl,
@@ -43,6 +44,12 @@ export function useGeneratedResumesByJobQuery(
 export function useGenerateResumeMutation() {
   return useMutation({
     mutationFn: generateResumeApi,
+  });
+}
+
+export function useGenerateGeneralResumeMutation() {
+  return useMutation({
+    mutationFn: generateGeneralResumeApi,
   });
 }
 

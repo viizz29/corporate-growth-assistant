@@ -71,6 +71,58 @@ describe('ResumeTailoringService', () => {
     });
   });
 
+  it('includes all profile items for a general purpose resume even when AI omits them', async () => {
+    openAiService.generateTailoredResumeContent.mockResolvedValue({
+      headline: 'General Professional',
+      profileSummary: 'General summary.',
+      selectedSkillIds: ['skill-2'],
+      selectedWorkExperiences: [
+        {
+          id: 'work-1',
+          rewrittenDescription: 'Rewritten.',
+          relevanceReason: 'Relevant.',
+        },
+      ],
+      selectedProjects: [],
+      selectedEducationIds: ['education-1'],
+      omittedItemIds: {
+        skillIds: ['skill-1'],
+        workExperienceIds: ['work-2'],
+        projectIds: ['project-1', 'project-2'],
+        educationIds: ['education-2'],
+      },
+    });
+
+    const result = await service.tailor({ ...buildInput(), jobAd: null });
+
+    expect(openAiService.generateTailoredResumeContent).toHaveBeenCalledWith(
+      expect.objectContaining({ jobAd: null }),
+    );
+    expect(result.headline).toBe('General Professional');
+    expect(result.skills.map((skill) => skill.id)).toEqual([
+      'skill-1',
+      'skill-2',
+    ]);
+    expect(result.workExperiences.map((experience) => experience.id)).toEqual([
+      'work-1',
+      'work-2',
+    ]);
+    expect(result.projects.map((project) => project.id)).toEqual([
+      'project-1',
+      'project-2',
+    ]);
+    expect(result.educations.map((education) => education.id)).toEqual([
+      'education-1',
+      'education-2',
+    ]);
+    expect(result.omittedItemIds).toEqual({
+      skillIds: [],
+      workExperienceIds: [],
+      projectIds: [],
+      educationIds: [],
+    });
+  });
+
   it('falls back to original profile content when AI tailoring is unavailable', async () => {
     openAiService.generateTailoredResumeContent.mockResolvedValue(null);
 

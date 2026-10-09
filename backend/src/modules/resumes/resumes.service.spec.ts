@@ -401,6 +401,98 @@ describe('ResumesService', () => {
     });
   });
 
+  describe('generateGeneral', () => {
+    it('should throw NotFoundException when the template is missing or inactive', async () => {
+      resumeTemplateRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        service.generateGeneral('user-1', 'template-1'),
+      ).rejects.toThrow(NotFoundException);
+
+      resumeTemplateRepository.findById.mockResolvedValue({
+        ...mockTemplate,
+        isActive: false,
+      } as any);
+
+      await expect(
+        service.generateGeneral('user-1', 'template-1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException when the user does not exist', async () => {
+      resumeTemplateRepository.findById.mockResolvedValue(mockTemplate as any);
+      userRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        service.generateGeneral('user-1', 'template-1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should generate a general purpose resume with all profile data', async () => {
+      resumeTemplateRepository.findById.mockResolvedValue(mockTemplate as any);
+      userRepository.findById.mockResolvedValue(mockUser as any);
+      educationRepository.findAllByUserId.mockResolvedValue([]);
+      workExperienceRepository.findAllByUserId.mockResolvedValue([]);
+      skillRepository.findAllByUserId.mockResolvedValue([]);
+      projectRepository.findAllByUserId.mockResolvedValue([]);
+      resumeTailoringService.tailor.mockResolvedValue(mockTailoredContent);
+      resumesPdfService.render.mockResolvedValue(Buffer.from('pdf-bytes'));
+      generatedResumeRepository.create.mockResolvedValue({
+        ...mockGeneratedResume,
+        jobAdId: null,
+        atsScore: 0,
+        filename: 'classic_Resume_General.pdf',
+      } as any);
+
+      const result = await service.generateGeneral('user-1', 'template-1');
+
+      expect(jobAdRepository.findByIdAndUserId).not.toHaveBeenCalled();
+      expect(atsScoreRepository.findByUserAndJobAd).not.toHaveBeenCalled();
+      expect(resumeTailoringService.tailor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user: mockUser,
+          jobAd: null,
+          language: 'en',
+        }),
+      );
+      expect(generatedResumeRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-1',
+          jobAdId: null,
+          resumeTemplateId: 'template-1',
+          atsScore: 0,
+          filename: 'classic_Resume_General.pdf',
+        }),
+      );
+      expect(result).toEqual({
+        previewId: mockGeneratedResume.id,
+        filename: 'classic_Resume_General.pdf',
+        atsScore: 0,
+        generatedAt: mockGeneratedResume.generatedAt,
+      });
+    });
+
+    it('should use the requested language instead of the template default', async () => {
+      resumeTemplateRepository.findById.mockResolvedValue(mockTemplate as any);
+      userRepository.findById.mockResolvedValue(mockUser as any);
+      educationRepository.findAllByUserId.mockResolvedValue([]);
+      workExperienceRepository.findAllByUserId.mockResolvedValue([]);
+      skillRepository.findAllByUserId.mockResolvedValue([]);
+      projectRepository.findAllByUserId.mockResolvedValue([]);
+      resumeTailoringService.tailor.mockResolvedValue(mockTailoredContent);
+      resumesPdfService.render.mockResolvedValue(Buffer.from('pdf-bytes'));
+      generatedResumeRepository.create.mockResolvedValue(
+        mockGeneratedResume as any,
+      );
+
+      await service.generateGeneral('user-1', 'template-1', 'hi');
+
+      expect(resumeTailoringService.tailor).toHaveBeenCalledWith(
+        expect.objectContaining({ language: 'hi', jobAd: null }),
+      );
+    });
+  });
+
   describe('preview', () => {
     it('should throw NotFoundException when the resume does not exist', async () => {
       generatedResumeRepository.findById.mockResolvedValue(null);

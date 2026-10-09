@@ -16,6 +16,11 @@ export type ResumeGenerateRequest = {
   language?: "en" | "hi";
 };
 
+export type ResumeGeneralGenerateRequest = {
+  resumeTemplateId: string;
+  language?: "en" | "hi";
+};
+
 export type ResumeGenerateResponse = {
   previewId: string;
   filename: string;
@@ -25,7 +30,7 @@ export type ResumeGenerateResponse = {
 
 export type GeneratedResume = {
   id: string;
-  jobAdId: string;
+  jobAdId: string | null;
   resumeTemplateId: string;
   jobAdvertisement: { title: string } | null;
   resumeTemplate: { name: string } | null;
@@ -52,6 +57,13 @@ export const generateResumeApi = async (
   data: ResumeGenerateRequest,
 ): Promise<ResumeGenerateResponse> => {
   const response = await api.post("/api/v1/resumes/generate", data);
+  return response.data;
+};
+
+export const generateGeneralResumeApi = async (
+  data: ResumeGeneralGenerateRequest,
+): Promise<ResumeGenerateResponse> => {
+  const response = await api.post("/api/v1/resumes/generate-general", data);
   return response.data;
 };
 

@@ -23,7 +23,7 @@ export class ResumeTailoringService {
 
   async tailor(input: {
     user: User;
-    jobAd: JobAdvertisement;
+    jobAd: JobAdvertisement | null;
     educations: UserEducation[];
     workExperiences: UserWorkExperience[];
     skills: UserSkill[];
@@ -35,12 +35,14 @@ export class ResumeTailoringService {
     try {
       aiResult = await this.openAiService.generateTailoredResumeContent({
         language: input.language,
-        jobAd: {
-          title: input.jobAd.title,
-          description: input.jobAd.description,
-          requirements: input.jobAd.requirements,
-          location: input.jobAd.location,
-        },
+        jobAd: input.jobAd
+          ? {
+              title: input.jobAd.title,
+              description: input.jobAd.description,
+              requirements: input.jobAd.requirements,
+              location: input.jobAd.location,
+            }
+          : null,
         user: {
           name: input.user.name,
           email: input.user.email,
@@ -87,7 +89,7 @@ export class ResumeTailoringService {
   private buildTailoredContent(
     input: {
       user: User;
-      jobAd: JobAdvertisement;
+      jobAd: JobAdvertisement | null;
       educations: UserEducation[];
       workExperiences: UserWorkExperience[];
       skills: UserSkill[];
@@ -107,32 +109,61 @@ export class ResumeTailoringService {
       input.educations.map((education) => [education.id, education]),
     );
 
-    const selectedSkills = this.selectSkills(input.skills, skillMap, aiResult);
-    const selectedWorkExperiences = this.selectWorkExperiences(
-      input.workExperiences,
-      workMap,
-      aiResult,
-    );
-    const selectedProjects = this.selectProjects(
-      input.projects,
-      projectMap,
-      aiResult,
-    );
-    const selectedEducations = this.selectEducations(
-      input.educations,
-      educationMap,
-      aiResult,
-    );
+    const generalPurpose = !input.jobAd;
+
+    const selectedSkills = generalPurpose
+      ? input.skills.map((skill) => ({
+          id: skill.id,
+          skillName: skill.skillName,
+          proficiencyLevel: skill.proficiencyLevel,
+        }))
+      : this.selectSkills(input.skills, skillMap, aiResult);
+    const selectedWorkExperiences = generalPurpose
+      ? input.workExperiences.map((experience) => ({
+          id: experience.id,
+          company: experience.company,
+          role: experience.role,
+          startDate: experience.startDate,
+          endDate: experience.endDate,
+          description: experience.description,
+          relevanceReason: '',
+        }))
+      : this.selectWorkExperiences(input.workExperiences, workMap, aiResult);
+    const selectedProjects = generalPurpose
+      ? input.projects.map((project) => ({
+          id: project.id,
+          projectName: project.projectName,
+          description: project.description,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          techStack: project.techStack,
+          relevanceReason: '',
+        }))
+      : this.selectProjects(input.projects, projectMap, aiResult);
+    const selectedEducations = generalPurpose
+      ? input.educations.map((education) => ({
+          id: education.id,
+          institution: education.institution,
+          degree: education.degree,
+          fieldOfStudy: education.fieldOfStudy,
+          startDate: education.startDate,
+          endDate: education.endDate,
+          description: education.description,
+        }))
+      : this.selectEducations(input.educations, educationMap, aiResult);
 
     return {
       headline:
         aiResult?.headline?.trim() ||
-        this.buildFallbackHeadline(input.workExperiences, input.jobAd.title),
+        this.buildFallbackHeadline(
+          input.workExperiences,
+          input.jobAd?.title ?? null,
+        ),
       profileSummary:
         aiResult?.profileSummary?.trim() ||
         this.buildFallbackSummary(
           input.user.name,
-          input.jobAd.title,
+          input.jobAd?.title ?? null,
           selectedWorkExperiences,
           selectedSkills,
         ),
@@ -140,28 +171,35 @@ export class ResumeTailoringService {
       workExperiences: selectedWorkExperiences,
       projects: selectedProjects,
       educations: selectedEducations,
-      omittedItemIds: {
-        skillIds: this.buildOmittedIds(
-          input.skills.map((skill) => skill.id),
-          selectedSkills.map((skill) => skill.id),
-          aiResult?.omittedItemIds.skillIds,
-        ),
-        workExperienceIds: this.buildOmittedIds(
-          input.workExperiences.map((experience) => experience.id),
-          selectedWorkExperiences.map((experience) => experience.id),
-          aiResult?.omittedItemIds.workExperienceIds,
-        ),
-        projectIds: this.buildOmittedIds(
-          input.projects.map((project) => project.id),
-          selectedProjects.map((project) => project.id),
-          aiResult?.omittedItemIds.projectIds,
-        ),
-        educationIds: this.buildOmittedIds(
-          input.educations.map((education) => education.id),
-          selectedEducations.map((education) => education.id),
-          aiResult?.omittedItemIds.educationIds,
-        ),
-      },
+      omittedItemIds: generalPurpose
+        ? {
+            skillIds: [],
+            workExperienceIds: [],
+            projectIds: [],
+            educationIds: [],
+          }
+        : {
+            skillIds: this.buildOmittedIds(
+              input.skills.map((skill) => skill.id),
+              selectedSkills.map((skill) => skill.id),
+              aiResult?.omittedItemIds.skillIds,
+            ),
+            workExperienceIds: this.buildOmittedIds(
+              input.workExperiences.map((experience) => experience.id),
+              selectedWorkExperiences.map((experience) => experience.id),
+              aiResult?.omittedItemIds.workExperienceIds,
+            ),
+            projectIds: this.buildOmittedIds(
+              input.projects.map((project) => project.id),
+              selectedProjects.map((project) => project.id),
+              aiResult?.omittedItemIds.projectIds,
+            ),
+            educationIds: this.buildOmittedIds(
+              input.educations.map((education) => education.id),
+              selectedEducations.map((education) => education.id),
+              aiResult?.omittedItemIds.educationIds,
+            ),
+          },
       rawResponse: aiResult?.rawResponse,
     };
   }
@@ -312,23 +350,27 @@ export class ResumeTailoringService {
 
   private buildFallbackHeadline(
     workExperiences: UserWorkExperience[],
-    jobTitle: string,
+    jobTitle: string | null,
   ): string {
     const latestRole = workExperiences[0]?.role?.trim();
-    return latestRole || jobTitle;
+    return latestRole || jobTitle || 'Professional';
   }
 
   private buildFallbackSummary(
     userName: string,
-    jobTitle: string,
+    jobTitle: string | null,
     workExperiences: TailoredResumeWorkExperience[],
     skills: TailoredResumeSkill[],
   ): string {
     const latestRole = workExperiences[0]?.role;
     const leadingSkills = skills.slice(0, 3).map((skill) => skill.skillName);
 
+    const intro = jobTitle
+      ? `${userName} is targeting the ${jobTitle} role with a resume focused on the most relevant experience and strengths.`
+      : `${userName} presents a general purpose resume highlighting their overall experience and strengths.`;
+
     return [
-      `${userName} is targeting the ${jobTitle} role with a resume focused on the most relevant experience and strengths.`,
+      intro,
       latestRole ? `Recent experience includes ${latestRole}.` : null,
       leadingSkills.length
         ? `Key areas of fit include ${leadingSkills.join(', ')}.`

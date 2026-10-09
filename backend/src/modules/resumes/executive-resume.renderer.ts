@@ -125,11 +125,14 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
           React.createElement(
             Text,
             { style: styles.roleLine },
-            [
-              `${labels.targetRole}: ${this.createHeadline(data)}`,
-              data.jobAd.location,
-              `${labels.atsScore}: ${data.atsScore.toFixed(0)}%`,
-            ]
+            (data.jobAd
+              ? [
+                  `${labels.targetRole}: ${this.createHeadline(data)}`,
+                  data.jobAd.location,
+                  `${labels.atsScore}: ${data.atsScore.toFixed(0)}%`,
+                ]
+              : []
+            )
               .filter(Boolean)
               .join(' | '),
           ),

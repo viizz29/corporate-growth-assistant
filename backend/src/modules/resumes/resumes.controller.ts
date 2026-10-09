@@ -5,6 +5,7 @@ import { ResumesService } from './resumes.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { SkipEmailVerification } from '../../common/decorators/public.decorator';
 import { GenerateResumeDto } from './dto/generate-resume.dto';
+import { GenerateGeneralResumeDto } from './dto/generate-general-resume.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -66,6 +67,23 @@ export class ResumesController {
     return this.resumesService.generate(
       user.userId,
       dto.jobAdId,
+      dto.resumeTemplateId,
+      dto.language,
+    );
+  }
+
+  @Post('generate-general')
+  @ApiOperation({
+    summary: 'Generate a general purpose PDF resume from the full profile',
+  })
+  @ApiBody({ type: GenerateGeneralResumeDto })
+  @ApiResponse({ status: 201, description: 'General resume generated.' })
+  generateGeneral(
+    @Body() dto: GenerateGeneralResumeDto,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.resumesService.generateGeneral(
+      user.userId,
       dto.resumeTemplateId,
       dto.language,
     );

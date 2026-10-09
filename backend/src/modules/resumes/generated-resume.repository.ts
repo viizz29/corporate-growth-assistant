@@ -8,7 +8,7 @@ import type { TailoredResumeContent } from './resume-render.types';
 type GeneratedResumeRow = {
   id: string;
   userId: string;
-  jobAdId: string;
+  jobAdId: string | null;
   resumeTemplateId: string;
   atsScore: string | number;
   filePath: string;
@@ -22,7 +22,7 @@ type GeneratedResumeRow = {
 type PlainGeneratedResume = {
   id: string;
   userId: string;
-  jobAdId: string;
+  jobAdId: string | null;
   resumeTemplateId: string;
   atsScore: string | number;
   filePath: string;

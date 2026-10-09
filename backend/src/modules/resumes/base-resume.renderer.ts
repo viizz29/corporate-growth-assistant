@@ -18,6 +18,7 @@ import type {
 
 type ResumeLabels = {
   targetRole: string;
+  headline: string;
   atsScore: string;
   profile: string;
   experience: string;
@@ -50,7 +51,9 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
       {
         title: `${data.user.name} Resume`,
         author: data.user.name,
-        subject: `Resume tailored for ${data.jobAd.title}`,
+        subject: data.jobAd
+          ? `Resume tailored for ${data.jobAd.title}`
+          : 'General purpose resume',
         language: data.language,
       },
       page,
@@ -72,6 +75,7 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
     if (language === 'hi') {
       return {
         targetRole: 'लक्षित भूमिका',
+        headline: 'शीर्षक',
         atsScore: 'एटीएस स्कोर',
         profile: 'प्रोफ़ाइल',
         experience: 'अनुभव',
@@ -85,6 +89,7 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
 
     return {
       targetRole: 'Target Role',
+      headline: 'Headline',
       atsScore: 'ATS Score',
       profile: 'Profile',
       experience: 'Experience',
@@ -101,7 +106,7 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
   }
 
   protected createHeadline(data: ResumeRenderData): string {
-    return data.tailoredContent.headline || data.jobAd.title;
+    return data.tailoredContent.headline || data.jobAd?.title || '';
   }
 
   protected getResumeSkills(data: ResumeRenderData) {
@@ -124,13 +129,21 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
     const strongestSkill = this.getResumeSkills(data)[0]?.skillName;
     const latestRole = this.getResumeWorkExperiences(data)[0]?.role;
 
+    const intro = data.jobAd
+      ? `${data.user.name} is preparing a targeted resume for the ${data.jobAd.title} role.`
+      : `${data.user.name} is presenting a general purpose resume that highlights their overall experience and strengths.`;
+
+    const atsLine = data.jobAd
+      ? `This version is aligned against the job requirements with an ATS score of ${data.atsScore.toFixed(0)}%.`
+      : null;
+
     return [
-      `${data.user.name} is preparing a targeted resume for the ${data.jobAd.title} role.`,
+      intro,
       latestRole ? `Recent experience includes ${latestRole}.` : null,
       strongestSkill
         ? `Core strengths include ${strongestSkill} and other role-relevant skills.`
         : null,
-      `This version is aligned against the job requirements with an ATS score of ${data.atsScore.toFixed(0)}%.`,
+      atsLine,
     ]
       .filter(Boolean)
       .join(' ');

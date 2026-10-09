@@ -37,13 +37,13 @@ export class GeneratedResume extends Model {
   @ForeignKey(() => JobAdvertisement)
   @Column({
     type: DataType.UUID,
-    allowNull: false,
+    allowNull: true,
     field: 'job_ad_id',
   })
-  jobAdId!: string;
+  jobAdId!: string | null;
 
   @BelongsTo(() => JobAdvertisement)
-  jobAdvertisement!: JobAdvertisement;
+  jobAdvertisement!: JobAdvertisement | null;
 
   @ForeignKey(() => ResumeTemplate)
   @Column({

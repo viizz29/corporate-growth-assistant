@@ -157,6 +157,76 @@ export class ResumesService {
     };
   }
 
+  async generateGeneral(
+    userId: string,
+    resumeTemplateId: string,
+    language?: string,
+  ) {
+    const template = await this.resumeTemplateRepository.findById(
+      resumeTemplateId,
+      true,
+    );
+
+    if (!template || !template.isActive) {
+      throw new NotFoundException('Resume template not found or inactive');
+    }
+
+    const [user, educations, workExperiences, skills, projects] =
+      await Promise.all([
+        this.userRepository.findById(userId),
+        this.educationRepository.findAllByUserId(userId),
+        this.workExperienceRepository.findAllByUserId(userId),
+        this.skillRepository.findAllByUserId(userId),
+        this.projectRepository.findAllByUserId(userId),
+      ]);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const filename = this.buildGeneralFilename(template);
+    const selectedLanguage = language ?? template.language;
+    const tailoredContent = await this.resumeTailoringService.tailor({
+      user,
+      jobAd: null,
+      educations,
+      workExperiences,
+      skills,
+      projects,
+      language: selectedLanguage,
+    });
+    const { relativePath } = await this.buildPdf(
+      user,
+      null,
+      educations,
+      workExperiences,
+      skills,
+      projects,
+      tailoredContent,
+      template,
+      0,
+      selectedLanguage,
+    );
+
+    const resume = await this.generatedResumeRepository.create({
+      userId,
+      jobAdId: null,
+      resumeTemplateId,
+      atsScore: 0,
+      filePath: relativePath,
+      filename,
+      tailoredContent,
+      generatedAt: new Date(),
+    });
+
+    return {
+      previewId: resume.id,
+      filename: resume.filename,
+      atsScore: Number(resume.atsScore),
+      generatedAt: resume.generatedAt,
+    };
+  }
+
   async preview(id: string, userId: string) {
     const resume = await this.generatedResumeRepository.findById(id);
 
@@ -203,9 +273,18 @@ export class ResumesService {
     return `${slug(template.name)}_Resume_${slug(jobAd.title)}.pdf`;
   }
 
+  private buildGeneralFilename(template: ResumeTemplate): string {
+    const slug = (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_|_$/g, '');
+    return `${slug(template.name)}_Resume_General.pdf`;
+  }
+
   private async buildPdf(
     user: User,
-    jobAd: JobAdvertisement,
+    jobAd: JobAdvertisement | null,
     educations: UserEducation[],
     workExperiences: UserWorkExperience[],
     skills: UserSkill[],

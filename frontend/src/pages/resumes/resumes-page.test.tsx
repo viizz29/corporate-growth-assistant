@@ -27,6 +27,7 @@ const state = vi.hoisted(() => ({
   score: null as null | { atsScore: number; atsThreshold: number },
   scoreLoading: false,
   generate: { mutate: vi.fn(), isPending: false },
+  generateGeneral: { mutate: vi.fn(), isPending: false },
   fetchResumePreviewApi: vi.fn(),
 }));
 
@@ -58,6 +59,7 @@ vi.mock("@/hooks/use-resumes-queries", () => ({
     isFetching: state.templatesFetching,
   }),
   useGenerateResumeMutation: () => state.generate,
+  useGenerateGeneralResumeMutation: () => state.generateGeneral,
   fetchResumePreviewApi: state.fetchResumePreviewApi,
   getPreviewUrl: (id: string) => "/preview/" + id,
   getDownloadUrl: (id: string) => "/download/" + id,
@@ -127,6 +129,13 @@ describe("ResumesPage", () => {
         opts?: { onSuccess?: (data: ResumeGenerateResponse) => void }
       ) => opts?.onSuccess?.(defaultResponse)
     );
+    state.generateGeneral.isPending = false;
+    state.generateGeneral.mutate = vi.fn(
+      (
+        _vars: { resumeTemplateId: string },
+        opts?: { onSuccess?: (data: ResumeGenerateResponse) => void }
+      ) => opts?.onSuccess?.(defaultResponse)
+    );
     state.fetchResumePreviewApi.mockReset();
     state.fetchResumePreviewApi.mockResolvedValue(new Blob());
     Object.defineProperty(URL, "createObjectURL", {
@@ -177,6 +186,30 @@ describe("ResumesPage", () => {
 
     expect(state.generate.mutate).toHaveBeenCalledWith(
       { jobAdId: "job1", resumeTemplateId: "t1" },
+      expect.anything()
+    );
+    expect(await screen.findByTestId("pdf-viewer")).toBeInTheDocument();
+    expect(toast.success).toHaveBeenCalledWith("Resume generated successfully");
+  });
+
+  it("generates a general purpose resume without a job ad or ATS score", async () => {
+    state.jobs = [];
+    state.score = null;
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(
+      await screen.findByRole("button", { name: "General purpose" })
+    );
+
+    expect(
+      screen.getByText(/A general purpose resume uses your full profile/)
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Generate" }));
+
+    expect(state.generateGeneral.mutate).toHaveBeenCalledWith(
+      { resumeTemplateId: "t1" },
       expect.anything()
     );
     expect(await screen.findByTestId("pdf-viewer")).toBeInTheDocument();

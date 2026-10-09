@@ -32,6 +32,7 @@ describe('ResumesController', () => {
             list: jest.fn(),
             listTemplates: jest.fn(),
             generate: jest.fn(),
+            generateGeneral: jest.fn(),
             preview: jest.fn(),
             getFilePath: jest.fn(),
           },
@@ -119,6 +120,38 @@ describe('ResumesController', () => {
       expect(resumesService.generate).toHaveBeenCalledWith(
         'user-1',
         'job-ad-1',
+        'template-1',
+        undefined,
+      );
+    });
+  });
+
+  describe('generateGeneral', () => {
+    it('should generate a general purpose resume for the authenticated user', async () => {
+      const user = { userId: 'user-1' };
+      const dto = { resumeTemplateId: 'template-1', language: 'en' };
+      const expected = { previewId: 'resume-1' };
+      resumesService.generateGeneral.mockResolvedValue(expected as any);
+
+      const result = await controller.generateGeneral(dto, user);
+
+      expect(resumesService.generateGeneral).toHaveBeenCalledWith(
+        'user-1',
+        'template-1',
+        'en',
+      );
+      expect(result).toEqual(expected);
+    });
+
+    it('should pass an undefined language when not provided', async () => {
+      const user = { userId: 'user-1' };
+      const dto = { resumeTemplateId: 'template-1' };
+      resumesService.generateGeneral.mockResolvedValue({} as any);
+
+      await controller.generateGeneral(dto, user);
+
+      expect(resumesService.generateGeneral).toHaveBeenCalledWith(
+        'user-1',
         'template-1',
         undefined,
       );

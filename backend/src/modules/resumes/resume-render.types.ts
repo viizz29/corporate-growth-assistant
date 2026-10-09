@@ -61,7 +61,7 @@ export type TailoredResumeContent = {
 
 export type ResumeRenderData = {
   user: User;
-  jobAd: JobAdvertisement;
+  jobAd: JobAdvertisement | null;
   educations: UserEducation[];
   workExperiences: UserWorkExperience[];
   skills: UserSkill[];

@@ -4,6 +4,7 @@ import {
   listResumeTemplatesApi,
   listGeneratedResumesApi,
   generateResumeApi,
+  generateGeneralResumeApi,
   fetchResumePreviewApi,
   getPreviewUrl,
   getDownloadUrl,
@@ -66,6 +67,20 @@ describe("resumes-api", () => {
     const result = await generateResumeApi(request);
 
     expect(mockApi.post).toHaveBeenCalledWith("/api/v1/resumes/generate", request);
+    expect(result).toEqual(response);
+  });
+
+  it("generateGeneralResumeApi sends POST with request data", async () => {
+    const request = { resumeTemplateId: "t1" };
+    const response = { previewId: "p1", atsScore: 0 };
+    mockApi.post.mockResolvedValue({ data: response });
+
+    const result = await generateGeneralResumeApi(request);
+
+    expect(mockApi.post).toHaveBeenCalledWith(
+      "/api/v1/resumes/generate-general",
+      request
+    );
     expect(result).toEqual(response);
   });
 

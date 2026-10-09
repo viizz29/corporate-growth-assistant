@@ -169,11 +169,14 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
             React.createElement(
               Text,
               { style: styles.leadMeta },
-              [
-                `${labels.targetRole}: ${data.jobAd.title}`,
-                data.jobAd.location,
-                `${labels.atsScore}: ${data.atsScore.toFixed(0)}%`,
-              ]
+              (data.jobAd
+                ? [
+                    `${labels.targetRole}: ${data.jobAd.title}`,
+                    data.jobAd.location,
+                    `${labels.atsScore}: ${data.atsScore.toFixed(0)}%`,
+                  ]
+                : []
+              )
                 .filter(Boolean)
                 .join(' | '),
             ),

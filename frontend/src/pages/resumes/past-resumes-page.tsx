@@ -88,10 +88,17 @@ export default function PastResumesPage() {
                     {resume.filename || "Untitled Resume"}
                   </Typography>
                   <Box sx={{ display: "flex", gap: 1, mt: 0.5, flexWrap: "wrap", alignItems: "center" }}>
-                    {resume.jobAdvertisement && (
+                    {resume.jobAdvertisement ? (
                       <Chip
                         label={resume.jobAdvertisement.title}
                         size="small"
+                        variant="outlined"
+                      />
+                    ) : (
+                      <Chip
+                        label="General Purpose"
+                        size="small"
+                        color="secondary"
                         variant="outlined"
                       />
                     )}
@@ -103,18 +110,20 @@ export default function PastResumesPage() {
                         variant="outlined"
                       />
                     )}
-                    <Chip
-                      label={`ATS: ${resume.atsScore}`}
-                      size="small"
-                      color={
-                        resume.atsScore >= 70
-                          ? "success"
-                          : resume.atsScore >= 40
-                            ? "warning"
-                            : "error"
-                      }
-                      sx={{ fontWeight: 700 }}
-                    />
+                    {resume.jobAdId && (
+                      <Chip
+                        label={`ATS: ${resume.atsScore}`}
+                        size="small"
+                        color={
+                          resume.atsScore >= 70
+                            ? "success"
+                            : resume.atsScore >= 40
+                              ? "warning"
+                              : "error"
+                        }
+                        sx={{ fontWeight: 700 }}
+                      />
+                    )}
                   </Box>
                   <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
                     Generated {new Date(resume.generatedAt).toLocaleString()}

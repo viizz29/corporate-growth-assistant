@@ -200,6 +200,8 @@ export default function ResumesPage() {
               <ToggleButton value="general">General purpose</ToggleButton>
             </ToggleButtonGroup>
 
+
+
             {mode === "job" &&
               (jobAds.length === 0 ? (
                 <Alert severity="info" sx={{ mb: 2 }}>
@@ -292,56 +294,56 @@ export default function ResumesPage() {
 
             {mode === "job" && (
               <>
-            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
-              ATS Score
-            </Typography>
+                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                  ATS Score
+                </Typography>
 
-            {scoreQuery.isLoading ? (
-              <Skeleton variant="rounded" height={60} />
-            ) : score ? (
-              <>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Chip
-                    label={`${score.atsScore}`}
-                    color={score.atsScore >= 70 ? "success" : score.atsScore >= 40 ? "warning" : "error"}
-                    size="small"
-                    sx={{ fontWeight: 700 }}
-                  />
-                  <Typography variant="body2" color="text.secondary">
-                    out of 100
-                  </Typography>
-                </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={score.atsScore}
-                  color={score.atsScore >= 70 ? "success" : score.atsScore >= 40 ? "warning" : "error"}
-                  sx={{ mt: 1, height: 8, borderRadius: 4 }}
-                />
-                <Box sx={{ mt: 1 }}>
-                  {score.atsScore >= threshold ? (
-                    <Alert severity="success" sx={{ py: 0.5 }}>
-                      Eligible to generate a resume for this job.
-                    </Alert>
-                  ) : (
-                    <Alert severity="warning" sx={{ py: 0.5 }}>
-                      ATS score below {threshold}. Improve your profile to unlock resume generation.
-                    </Alert>
-                  )}
-                </Box>
-              </>
-            ) : (
-              <Alert severity="info" sx={{ mb: 1 }}>
-                No ATS score available for this job ad yet.
-                <Box sx={{ mt: 1 }}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => navigate(`/ats/${selectedJobAdId}`)}
-                  >
-                    Compute Score
-                  </Button>
-                </Box>
-              </Alert>
+                {scoreQuery.isLoading ? (
+                  <Skeleton variant="rounded" height={60} />
+                ) : score ? (
+                  <>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Chip
+                        label={`${score.atsScore}`}
+                        color={score.atsScore >= 70 ? "success" : score.atsScore >= 40 ? "warning" : "error"}
+                        size="small"
+                        sx={{ fontWeight: 700 }}
+                      />
+                      <Typography variant="body2" color="text.secondary">
+                        out of 100
+                      </Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={score.atsScore}
+                      color={score.atsScore >= 70 ? "success" : score.atsScore >= 40 ? "warning" : "error"}
+                      sx={{ mt: 1, height: 8, borderRadius: 4 }}
+                    />
+                    <Box sx={{ mt: 1 }}>
+                      {score.atsScore >= threshold ? (
+                        <Alert severity="success" sx={{ py: 0.5 }}>
+                          Eligible to generate a resume for this job.
+                        </Alert>
+                      ) : (
+                        <Alert severity="warning" sx={{ py: 0.5 }}>
+                          ATS score below {threshold}. Improve your profile to unlock resume generation.
+                        </Alert>
+                      )}
+                    </Box>
+                  </>
+                ) : (
+                  <Alert severity="info" sx={{ mb: 1 }}>
+                    No ATS score available for this job ad yet.
+                    <Box sx={{ mt: 1 }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => navigate(`/ats/${selectedJobAdId}`)}
+                      >
+                        Compute Score
+                      </Button>
+                    </Box>
+                  </Alert>
                 )}
               </>
             )}

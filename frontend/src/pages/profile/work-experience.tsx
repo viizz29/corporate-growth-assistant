@@ -147,6 +147,21 @@ export default function WorkExperiencePage() {
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) => {
             const onSettled = () => setSubmitting(false);
+
+
+
+
+            const { endDate } = values;
+
+            console.log({ endDate });
+
+            if (endDate == emptyValues.endDate) {
+              values['endDate'] = null;
+            }
+
+            console.log({ values });
+
+
             if (editingItem) {
               updateMutation.mutate(
                 { id: editingItem.id, data: values },

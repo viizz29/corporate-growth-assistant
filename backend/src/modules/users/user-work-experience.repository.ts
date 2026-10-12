@@ -23,7 +23,11 @@ export class UserWorkExperienceRepository {
   }
 
   async findAllByUserId(userId: string): Promise<UserWorkExperience[]> {
-    return this.model.findAll({ where: { userId }, raw: true });
+    return this.model.findAll({
+      where: { userId },
+      order: [['start_date', 'desc']],
+      raw: true,
+    });
   }
 
   async update(

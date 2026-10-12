@@ -38,7 +38,7 @@ export type WorkExperienceInput = {
   company: string;
   role: string;
   startDate?: string;
-  endDate?: string;
+  endDate?: string | null;
   description?: string;
 };
 
@@ -81,7 +81,9 @@ export const listEducationsApi = async (): Promise<Education[]> => {
   return response.data;
 };
 
-export const createEducationApi = async (data: EducationInput): Promise<Education> => {
+export const createEducationApi = async (
+  data: EducationInput,
+): Promise<Education> => {
   const response = await api.post("/api/v1/users/educations", data);
   return response.data;
 };
@@ -116,7 +118,10 @@ export const updateWorkExperienceApi = async (
   id: string,
   data: Partial<WorkExperienceInput>,
 ): Promise<WorkExperience> => {
-  const response = await api.patch(`/api/v1/users/work-experiences/${id}`, data);
+  const response = await api.patch(
+    `/api/v1/users/work-experiences/${id}`,
+    data,
+  );
   return response.data;
 };
 
@@ -155,7 +160,9 @@ export const listProjectsApi = async (): Promise<Project[]> => {
   return response.data;
 };
 
-export const createProjectApi = async (data: ProjectInput): Promise<Project> => {
+export const createProjectApi = async (
+  data: ProjectInput,
+): Promise<Project> => {
   const response = await api.post("/api/v1/users/projects", data);
   return response.data;
 };

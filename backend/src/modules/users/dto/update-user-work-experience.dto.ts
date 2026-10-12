@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsOptional, IsString, Matches } from 'class-validator';
 
 export class UpdateUserWorkExperienceDto {
   @ApiPropertyOptional({
@@ -30,8 +30,11 @@ export class UpdateUserWorkExperienceDto {
     example: '2024-06-30',
     description: 'End date (YYYY-MM-DD)',
   })
-  @IsDateString({}, { message: 'endDate must be a valid date (YYYY-MM-DD)' })
   @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'endDate must be in YYYY-MM-DD format',
+  })
+  @IsDateString({}, { message: 'endDate must be a valid date (YYYY-MM-DD)' })
   endDate?: string;
 
   @ApiPropertyOptional({

@@ -272,40 +272,6 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
               ),
             ]
           : []),
-        ...(data.projects.length
-          ? [
-              this.view(
-                styles.section,
-                this.text(styles.sectionTitle, labels.projects),
-                ...data.projects.map((project) =>
-                  this.view(
-                    styles.entry,
-                    this.view(
-                      styles.entryHeader,
-                      this.text(styles.entryTitle, project.projectName),
-                      this.text(
-                        styles.entryDate,
-                        this.formatDateRange(
-                          data.language,
-                          project.startDate,
-                          project.endDate,
-                        ),
-                      ),
-                    ),
-                    project.description
-                      ? this.text(styles.paragraph, project.description)
-                      : null,
-                    project.techStack
-                      ? this.text(
-                          styles.entrySubtitle,
-                          `${labels.techStack}: ${project.techStack}`,
-                        )
-                      : null,
-                  ),
-                ),
-              ),
-            ]
-          : []),
         ...(projects.length
           ? [
               this.view(

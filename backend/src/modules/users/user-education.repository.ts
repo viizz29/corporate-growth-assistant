@@ -21,7 +21,11 @@ export class UserEducationRepository {
   }
 
   async findAllByUserId(userId: string): Promise<UserEducation[]> {
-    return this.model.findAll({ where: { userId }, raw: true });
+    return this.model.findAll({
+      where: { userId },
+      order: [['start_date', 'desc']],
+      raw: true,
+    });
   }
 
   async update(

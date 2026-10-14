@@ -100,7 +100,6 @@ export default function LanguagesPage() {
     <PageWrapper>
       <PageHeader
         title={t("Languages")}
-        subtitle="Manage languages"
         onBack={() => navigate(-1)}
         actionLabel={t("Add Language")}
         actionIcon={<AddIcon />}
@@ -117,15 +116,15 @@ export default function LanguagesPage() {
         </Box>
       ) : !languages?.length ? (
         <EmptyState
-          title={t("noLanguageEntries")}
-          description={t(
+
+          message={t(
             "Add your first language to showcase your communication skills.",
           )}
-          actionLabel={t("Add Language")}
-          onAction={() => {
-            setEditing(null);
-            setModalOpen(true);
-          }}
+        // actionLabel={t("Add Language")}
+        // onAction={() => {
+        //   setEditing(null);
+        //   setModalOpen(true);
+        // }}
         />
       ) : (
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -174,7 +173,7 @@ export default function LanguagesPage() {
           setModalOpen(false);
           setEditing(null);
         }}
-        maxWidth="sm"
+
       >
         <Formik
           initialValues={initialValues}
@@ -261,15 +260,15 @@ export default function LanguagesPage() {
 
       <ConfirmModal
         open={confirmOpen}
-        title="Delete language"
+        // title="Delete language"
         message={`Are you sure you want to delete "${toDelete?.languageName}"?`}
         onConfirm={handleDelete}
         onCancel={() => {
           setConfirmOpen(false);
           setToDelete(null);
         }}
-        confirmColor="error"
-        loading={deleteMut.isPending}
+      // confirmColor="error"
+      // loading={deleteMut.isPending}
       />
     </PageWrapper>
   );

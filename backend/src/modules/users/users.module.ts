@@ -16,6 +16,9 @@ import { SkillService } from './skill.service';
 import { UserProject } from './user-project.model';
 import { UserProjectRepository } from './user-project.repository';
 import { ProjectService } from './project.service';
+import { UserLanguage } from './user-language.model';
+import { UserLanguageRepository } from './user-language.repository';
+import { LanguageService } from './language.service';
 
 @Module({
   imports: [
@@ -25,6 +28,7 @@ import { ProjectService } from './project.service';
       UserWorkExperience,
       UserSkill,
       UserProject,
+      UserLanguage,
     ]),
   ],
   providers: [
@@ -38,6 +42,8 @@ import { ProjectService } from './project.service';
     SkillService,
     UserProjectRepository,
     ProjectService,
+    UserLanguageRepository,
+    LanguageService,
   ],
   controllers: [UsersController],
   exports: [
@@ -46,6 +52,7 @@ import { ProjectService } from './project.service';
     UserWorkExperienceRepository,
     UserSkillRepository,
     UserProjectRepository,
+    UserLanguageRepository,
   ],
 })
 export class UsersModule {}

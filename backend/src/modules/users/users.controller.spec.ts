@@ -5,6 +5,7 @@ import { EducationService } from './education.service';
 import { WorkExperienceService } from './work-experience.service';
 import { SkillService } from './skill.service';
 import { ProjectService } from './project.service';
+import { LanguageService } from './language.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -13,6 +14,7 @@ describe('UsersController', () => {
   let workExperienceService: jest.Mocked<WorkExperienceService>;
   let skillService: jest.Mocked<SkillService>;
   let projectService: jest.Mocked<ProjectService>;
+  let languageService: jest.Mocked<LanguageService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -63,6 +65,15 @@ describe('UsersController', () => {
             remove: jest.fn(),
           },
         },
+        {
+          provide: LanguageService,
+          useValue: {
+            findAllByUser: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+            remove: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -72,6 +83,7 @@ describe('UsersController', () => {
     workExperienceService = module.get(WorkExperienceService);
     skillService = module.get(SkillService);
     projectService = module.get(ProjectService);
+    languageService = module.get(LanguageService);
   });
 
   it('should be defined', () => {

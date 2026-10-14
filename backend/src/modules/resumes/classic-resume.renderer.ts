@@ -124,6 +124,33 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
         fontSize: 9,
         color: '#1f2933',
       },
+      languageRow: {
+        marginBottom: 7,
+      },
+      languageHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 3,
+      },
+      languageName: {
+        fontSize: 9,
+        fontWeight: 700,
+        color: '#1f2933',
+      },
+      languageLevel: {
+        fontSize: 8,
+        color: '#52606d',
+      },
+      languageBarTrack: {
+        height: 6,
+        backgroundColor: '#d9e2ec',
+        borderRadius: 3,
+      },
+      languageBarFill: {
+        height: 6,
+        backgroundColor: '#1f3a5f',
+        borderRadius: 3,
+      },
     });
 
     return this.createDocument(
@@ -302,6 +329,17 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
                         )
                       : null,
                   ),
+                ),
+              ),
+            ]
+          : []),
+        ...(this.getResumeLanguages(data).length
+          ? [
+              this.view(
+                styles.section,
+                this.text(styles.sectionTitle, labels.languages),
+                ...this.getResumeLanguages(data).map((language) =>
+                  this.createLanguageBar(styles, language),
                 ),
               ),
             ]

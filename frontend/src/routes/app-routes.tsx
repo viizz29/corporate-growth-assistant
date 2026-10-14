@@ -24,6 +24,7 @@ const Education = lazy(() => import("../pages/profile/education"));
 const WorkExperience = lazy(() => import("../pages/profile/work-experience"));
 const Skills = lazy(() => import("../pages/profile/skills"));
 const Projects = lazy(() => import("../pages/profile/projects"));
+const Languages = lazy(() => import("../pages/profile/languages"));
 const JobAdsList = lazy(() => import("../pages/job-ads/job-ads-list"));
 const JobAdForm = lazy(() => import("../pages/job-ads/job-ad-form"));
 const AtsScoreList = lazy(() => import("../pages/ats/ats-score-list"));
@@ -104,6 +105,7 @@ export default function AppRoutes() {
           <Route path="/profile/work-experience" element={<WorkExperience />} />
           <Route path="/profile/skills" element={<Skills />} />
           <Route path="/profile/projects" element={<Projects />} />
+          <Route path="/profile/languages" element={<Languages />} />
           <Route path="/job-ads" element={<JobAdsList />} />
           <Route path="/job-ads/new" element={<JobAdForm />} />
           <Route path="/job-ads/:id" element={<JobAdForm />} />

@@ -10,6 +10,7 @@ import { UserEducationRepository } from '../users/user-education.repository';
 import { UserWorkExperienceRepository } from '../users/user-work-experience.repository';
 import { UserSkillRepository } from '../users/user-skill.repository';
 import { UserProjectRepository } from '../users/user-project.repository';
+import { UserLanguageRepository } from '../users/user-language.repository';
 import { AtsScoreRepository } from '../ats/ats-score.repository';
 import { ATS_SCORE_THRESHOLD } from '../ats/ats.service';
 import { ResumeTemplateRepository } from './resume-template.repository';
@@ -22,6 +23,7 @@ import type { UserEducation } from '../users/user-education.model';
 import type { UserProject } from '../users/user-project.model';
 import type { UserSkill } from '../users/user-skill.model';
 import type { UserWorkExperience } from '../users/user-work-experience.model';
+import type { UserLanguage } from '../users/user-language.model';
 import type { ResumeTemplate } from './resume-template.model';
 import type { TailoredResumeContent } from './resume-render.types';
 
@@ -38,6 +40,7 @@ export class ResumesService {
     private readonly workExperienceRepository: UserWorkExperienceRepository,
     private readonly skillRepository: UserSkillRepository,
     private readonly projectRepository: UserProjectRepository,
+    private readonly languageRepository: UserLanguageRepository,
     private readonly atsScoreRepository: AtsScoreRepository,
     private readonly resumesPdfService: ResumesPdfService,
     private readonly resumeTailoringService: ResumeTailoringService,
@@ -101,13 +104,14 @@ export class ResumesService {
       );
     }
 
-    const [user, educations, workExperiences, skills, projects] =
+    const [user, educations, workExperiences, skills, projects, languages] =
       await Promise.all([
         this.userRepository.findById(userId),
         this.educationRepository.findAllByUserId(userId),
         this.workExperienceRepository.findAllByUserId(userId),
         this.skillRepository.findAllByUserId(userId),
         this.projectRepository.findAllByUserId(userId),
+        this.languageRepository.findByUserId(userId),
       ]);
 
     if (!user) {
@@ -123,6 +127,7 @@ export class ResumesService {
       workExperiences,
       skills,
       projects,
+      languages,
       language: selectedLanguage,
     });
     const { relativePath } = await this.buildPdf(
@@ -132,6 +137,7 @@ export class ResumesService {
       workExperiences,
       skills,
       projects,
+      languages,
       tailoredContent,
       template,
       Number(atsScore.atsScore),
@@ -171,13 +177,14 @@ export class ResumesService {
       throw new NotFoundException('Resume template not found or inactive');
     }
 
-    const [user, educations, workExperiences, skills, projects] =
+    const [user, educations, workExperiences, skills, projects, languages] =
       await Promise.all([
         this.userRepository.findById(userId),
         this.educationRepository.findAllByUserId(userId),
         this.workExperienceRepository.findAllByUserId(userId),
         this.skillRepository.findAllByUserId(userId),
         this.projectRepository.findAllByUserId(userId),
+        this.languageRepository.findByUserId(userId),
       ]);
 
     if (!user) {
@@ -193,6 +200,7 @@ export class ResumesService {
       workExperiences,
       skills,
       projects,
+      languages,
       language: selectedLanguage,
     });
     const { relativePath } = await this.buildPdf(
@@ -202,6 +210,7 @@ export class ResumesService {
       workExperiences,
       skills,
       projects,
+      languages,
       tailoredContent,
       template,
       0,
@@ -289,6 +298,7 @@ export class ResumesService {
     workExperiences: UserWorkExperience[],
     skills: UserSkill[],
     projects: UserProject[],
+    languages: UserLanguage[],
     tailoredContent: TailoredResumeContent,
     template: ResumeTemplate,
     atsScore: number,
@@ -312,6 +322,7 @@ export class ResumesService {
       workExperiences,
       skills,
       projects,
+      languages,
       tailoredContent,
       template,
       atsScore,

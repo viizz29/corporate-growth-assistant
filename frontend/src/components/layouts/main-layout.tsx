@@ -25,6 +25,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import FolderIcon from "@mui/icons-material/Folder";
+import TranslateIcon from "@mui/icons-material/Translate";
 
 import { SidebarHeader } from "./sidebar-header-component";
 import { SidebarMenuItem } from "./sidebar-menu-item";
@@ -53,6 +54,7 @@ const menuItems: MenuItem[] = [
       { label: "Work Experience", path: "/profile/work-experience", icon: <EngineeringIcon /> },
       { label: "Skills", path: "/profile/skills", icon: <PsychologyIcon /> },
       { label: "Projects", path: "/profile/projects", icon: <FolderIcon /> },
+      { label: "Languages", path: "/profile/languages", icon: <TranslateIcon /> },
     ],
   },
   { label: "Job Advertisements", path: "/job-ads", icon: <WorkIcon /> },

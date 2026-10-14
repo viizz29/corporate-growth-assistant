@@ -9,12 +9,14 @@ import type { UserEducation } from '../users/user-education.model';
 import type { UserProject } from '../users/user-project.model';
 import type { UserSkill } from '../users/user-skill.model';
 import type { UserWorkExperience } from '../users/user-work-experience.model';
+import type { UserLanguage } from '../users/user-language.model';
 import type {
   TailoredResumeContent,
   TailoredResumeEducation,
   TailoredResumeProject,
   TailoredResumeSkill,
   TailoredResumeWorkExperience,
+  TailoredResumeLanguage,
 } from './resume-render.types';
 
 @Injectable()
@@ -28,6 +30,7 @@ export class ResumeTailoringService {
     workExperiences: UserWorkExperience[];
     skills: UserSkill[];
     projects: UserProject[];
+    languages?: UserLanguage[];
     language: string;
   }): Promise<TailoredResumeContent> {
     let aiResult: ResumeTailoringAiResult | null = null;
@@ -77,6 +80,11 @@ export class ResumeTailoringService {
           endDate: project.endDate,
           techStack: project.techStack,
         })),
+        languages: (input.languages || []).map((language) => ({
+          id: language.id,
+          languageName: language.languageName,
+          proficiencyLevel: language.proficiencyLevel,
+        })),
       });
     } catch (error) {
       // Preserve resume generation even if AI tailoring is unavailable.
@@ -94,6 +102,7 @@ export class ResumeTailoringService {
       workExperiences: UserWorkExperience[];
       skills: UserSkill[];
       projects: UserProject[];
+      languages?: UserLanguage[];
       language: string;
     },
     aiResult: ResumeTailoringAiResult | null,
@@ -107,6 +116,9 @@ export class ResumeTailoringService {
     );
     const educationMap = new Map(
       input.educations.map((education) => [education.id, education]),
+    );
+    const languageMap = new Map(
+      (input.languages || []).map((language) => [language.id, language]),
     );
 
     const generalPurpose = !input.jobAd;
@@ -151,6 +163,13 @@ export class ResumeTailoringService {
           description: education.description,
         }))
       : this.selectEducations(input.educations, educationMap, aiResult);
+    const selectedLanguages = generalPurpose
+      ? (input.languages || []).map((language) => ({
+          id: language.id,
+          languageName: language.languageName,
+          proficiencyLevel: language.proficiencyLevel,
+        }))
+      : this.selectLanguages(input.languages || [], languageMap, aiResult);
 
     return {
       headline:
@@ -171,12 +190,14 @@ export class ResumeTailoringService {
       workExperiences: selectedWorkExperiences,
       projects: selectedProjects,
       educations: selectedEducations,
+      languages: selectedLanguages,
       omittedItemIds: generalPurpose
         ? {
             skillIds: [],
             workExperienceIds: [],
             projectIds: [],
             educationIds: [],
+            languageIds: [],
           }
         : {
             skillIds: this.buildOmittedIds(
@@ -198,6 +219,11 @@ export class ResumeTailoringService {
               input.educations.map((education) => education.id),
               selectedEducations.map((education) => education.id),
               aiResult?.omittedItemIds.educationIds,
+            ),
+            languageIds: this.buildOmittedIds(
+              (input.languages || []).map((language) => language.id),
+              selectedLanguages.map((language) => language.id),
+              aiResult?.omittedItemIds.languageIds,
             ),
           },
       rawResponse: aiResult?.rawResponse,
@@ -326,6 +352,25 @@ export class ResumeTailoringService {
       startDate: education.startDate,
       endDate: education.endDate,
       description: education.description,
+    }));
+  }
+
+  private selectLanguages(
+    languages: UserLanguage[] | undefined,
+    languageMap: Map<string, UserLanguage>,
+    aiResult: ResumeTailoringAiResult | null,
+  ): TailoredResumeLanguage[] {
+    const langList = languages || [];
+    const aiSelections =
+      aiResult?.selectedLanguageIds
+        ?.map((id) => languageMap.get(id))
+        .filter((language): language is UserLanguage => !!language) ?? [];
+
+    const source = aiSelections.length > 0 ? aiSelections : langList;
+    return source.map((language) => ({
+      id: language.id,
+      languageName: language.languageName,
+      proficiencyLevel: language.proficiencyLevel,
     }));
   }
 

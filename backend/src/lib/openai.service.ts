@@ -32,11 +32,13 @@ export interface ResumeTailoringAiResult {
     relevanceReason: string;
   }>;
   selectedEducationIds: string[];
+  selectedLanguageIds?: string[];
   omittedItemIds: {
     skillIds: string[];
     workExperienceIds: string[];
     projectIds: string[];
     educationIds: string[];
+    languageIds?: string[];
   };
   rawResponse?: string;
 }
@@ -183,6 +185,11 @@ export class OpenAiService {
       endDate: string | null;
       techStack: string | null;
     }>;
+    languages?: Array<{
+      id: string;
+      languageName: string;
+      proficiencyLevel: string | null;
+    }>;
   }): Promise<ResumeTailoringAiResult | null> {
     if (!this.isConfigured()) {
       return null;
@@ -207,11 +214,13 @@ export class OpenAiService {
         },
       ],
       selectedEducationIds: ['string'],
+      selectedLanguageIds: ['string'],
       omittedItemIds: {
         skillIds: ['string'],
         workExperienceIds: ['string'],
         projectIds: ['string'],
         educationIds: ['string'],
+        languageIds: ['string'],
       },
     };
 
@@ -231,7 +240,7 @@ export class OpenAiService {
           responseShape,
           null,
           2,
-        )}\n\nRules:\n- Output all prose in ${input.language === 'hi' ? 'Hindi' : 'English'}.\n- Headline must be at most 12 words.\n- Profile summary must be 2 to 3 sentences.\n- Select the most relevant skills, work experiences, projects, and educations${
+        )}\n\nRules:\n- Output all prose in ${input.language === 'hi' ? 'Hindi' : 'English'}.\n- Headline must be at most 12 words.\n- Profile summary must be 2 to 3 sentences.\n- Select the most relevant skills, work experiences, projects, educations, and languages${
           input.jobAd ? ' for this job' : ' to present the candidate broadly'
         }.\n- Prefer 6 to 12 skills, 2 to 4 work experiences, 2 to 4 projects, and 1 to 3 educations when enough relevant options exist.\n- rewrittenDescription must stay faithful to the original content while emphasizing relevance${
           input.jobAd ? ' to the job' : ' and impact'
@@ -259,7 +268,11 @@ export class OpenAiService {
           input.skills,
           null,
           2,
-        )}\n\nProjects:\n${JSON.stringify(input.projects, null, 2)}`,
+        )}\n\nProjects:\n${JSON.stringify(input.projects, null, 2)}${
+          input.languages && input.languages.length > 0
+            ? `\n\nLanguages:\n${JSON.stringify(input.languages, null, 2)}`
+            : ''
+        }`,
       },
     ];
 
@@ -377,8 +390,11 @@ export class OpenAiService {
       Array.isArray(value.omittedItemIds.workExperienceIds) &&
       Array.isArray(value.omittedItemIds.projectIds) &&
       Array.isArray(value.omittedItemIds.educationIds) &&
+      (!value.selectedLanguageIds || Array.isArray(value.selectedLanguageIds)) &&
+      (!value.omittedItemIds.languageIds || Array.isArray(value.omittedItemIds.languageIds)) &&
       value.selectedSkillIds.every((id) => typeof id === 'string') &&
       value.selectedEducationIds.every((id) => typeof id === 'string') &&
+      (!value.selectedLanguageIds || value.selectedLanguageIds.every((id) => typeof id === 'string')) &&
       value.selectedWorkExperiences.every(
         (item) =>
           !!item &&

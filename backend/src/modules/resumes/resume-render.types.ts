@@ -5,6 +5,7 @@ import type { UserEducation } from '../users/user-education.model';
 import type { UserProject } from '../users/user-project.model';
 import type { UserSkill } from '../users/user-skill.model';
 import type { UserWorkExperience } from '../users/user-work-experience.model';
+import type { UserLanguage } from '../users/user-language.model';
 import type { ResumeTemplate } from './resume-template.model';
 
 export type TailoredResumeSkill = {
@@ -43,6 +44,12 @@ export type TailoredResumeEducation = {
   description: string | null;
 };
 
+export type TailoredResumeLanguage = {
+  id: string;
+  languageName: string;
+  proficiencyLevel: string | null;
+};
+
 export type TailoredResumeContent = {
   headline: string;
   profileSummary: string;
@@ -50,11 +57,13 @@ export type TailoredResumeContent = {
   workExperiences: TailoredResumeWorkExperience[];
   projects: TailoredResumeProject[];
   educations: TailoredResumeEducation[];
+  languages: TailoredResumeLanguage[];
   omittedItemIds: {
     skillIds: string[];
     workExperienceIds: string[];
     projectIds: string[];
     educationIds: string[];
+    languageIds: string[];
   };
   rawResponse?: string;
 };
@@ -66,6 +75,7 @@ export type ResumeRenderData = {
   workExperiences: UserWorkExperience[];
   skills: UserSkill[];
   projects: UserProject[];
+  languages: UserLanguage[];
   tailoredContent: TailoredResumeContent;
   template: ResumeTemplate;
   atsScore: number;

@@ -13,6 +13,7 @@ import { EducationService } from './education.service';
 import { WorkExperienceService } from './work-experience.service';
 import { SkillService } from './skill.service';
 import { ProjectService } from './project.service';
+import { LanguageService } from './language.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { SkipEmailVerification } from '../../common/decorators/public.decorator';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -25,10 +26,13 @@ import { CreateUserSkillDto } from './dto/create-user-skill.dto';
 import { UpdateUserSkillDto } from './dto/update-user-skill.dto';
 import { CreateUserProjectDto } from './dto/create-user-project.dto';
 import { UpdateUserProjectDto } from './dto/update-user-project.dto';
+import { CreateUserLanguageDto } from './dto/create-user-language.dto';
+import { UpdateUserLanguageDto } from './dto/update-user-language.dto';
 import { UserEducationResponseDto } from './dto/user-education-response.dto';
 import { UserWorkExperienceResponseDto } from './dto/user-work-experience-response.dto';
 import { UserSkillResponseDto } from './dto/user-skill-response.dto';
 import { UserProjectResponseDto } from './dto/user-project-response.dto';
+import { UserLanguageResponseDto } from './dto/user-language-response.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -47,6 +51,7 @@ export class UsersController {
     private workExperienceService: WorkExperienceService,
     private skillService: SkillService,
     private projectService: ProjectService,
+    private languageService: LanguageService,
   ) {}
   // @Get()
   // findAll() {
@@ -273,6 +278,57 @@ export class UsersController {
     @CurrentUser() user: { userId: string },
   ) {
     return this.projectService.remove(id, user.userId);
+  }
+
+  @SkipEmailVerification()
+  @Post('languages')
+  @ApiOperation({ summary: 'Add a new language entry' })
+  @ApiBody({ type: CreateUserLanguageDto })
+  @ApiResponse({ status: 201, description: 'Language entry created.' })
+  createLanguage(
+    @Body() dto: CreateUserLanguageDto,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.languageService.create(user.userId, dto);
+  }
+
+  @SkipEmailVerification()
+  @Get('languages')
+  @ApiOperation({ summary: 'Get the authenticated user language list' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the authenticated user language entries.',
+    type: UserLanguageResponseDto,
+    isArray: true,
+  })
+  getLanguages(@CurrentUser() user: { userId: string }) {
+    return this.languageService.findAllByUser(user.userId);
+  }
+
+  @SkipEmailVerification()
+  @Patch('languages/:id')
+  @ApiOperation({ summary: 'Update a language entry' })
+  @ApiBody({ type: UpdateUserLanguageDto })
+  @ApiResponse({ status: 200, description: 'Language entry updated.' })
+  @ApiResponse({ status: 404, description: 'Language entry not found.' })
+  updateLanguage(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserLanguageDto,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.languageService.update(user.userId, id, dto);
+  }
+
+  @SkipEmailVerification()
+  @Delete('languages/:id')
+  @ApiOperation({ summary: 'Delete a language entry' })
+  @ApiResponse({ status: 200, description: 'Language entry deleted.' })
+  @ApiResponse({ status: 404, description: 'Language entry not found.' })
+  deleteLanguage(
+    @Param('id') id: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.languageService.remove(user.userId, id);
   }
 
   @SkipEmailVerification()

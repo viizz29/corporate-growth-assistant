@@ -68,6 +68,7 @@ describe('ResumeTailoringService', () => {
       workExperienceIds: ['work-2'],
       projectIds: ['project-1'],
       educationIds: ['education-2'],
+      languageIds: [],
     });
   });
 
@@ -120,6 +121,7 @@ describe('ResumeTailoringService', () => {
       workExperienceIds: [],
       projectIds: [],
       educationIds: [],
+      languageIds: [],
     });
   });
 
@@ -147,6 +149,7 @@ describe('ResumeTailoringService', () => {
       workExperienceIds: [],
       projectIds: [],
       educationIds: [],
+      languageIds: [],
     });
   });
 });

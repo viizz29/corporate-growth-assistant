@@ -7,6 +7,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import WorkIcon from "@mui/icons-material/Work";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import FolderIcon from "@mui/icons-material/Folder";
+import TranslateIcon from "@mui/icons-material/Translate";
 import EditIcon from "@mui/icons-material/Edit";
 import PageWrapper from "@/components/layouts/page-wrapper";
 import PageHeader from "@/components/layouts/page-header";
@@ -17,7 +18,9 @@ import {
   useWorkExperiencesQuery,
   useSkillsQuery,
   useProjectsQuery,
+  useLanguagesQuery,
 } from "@/hooks/use-users-queries";
+import type { Language } from "@/api/users-api";
 
 function SectionCard({
   title,
@@ -69,6 +72,7 @@ export default function ProfilePage() {
   const workQuery = useWorkExperiencesQuery();
   const skillsQuery = useSkillsQuery();
   const projectsQuery = useProjectsQuery();
+  const languagesQuery = useLanguagesQuery();
 
   const isLoading =
     educationsQuery.isLoading ||
@@ -200,6 +204,30 @@ export default function ProfilePage() {
                 )}
               </Box>
             ))}
+          </SectionCard>
+
+          <SectionCard
+            title={t("Languages")}
+            icon={<TranslateIcon color="primary" />}
+            count={languagesQuery.data?.length ?? 0}
+            to="/profile/languages"
+            emptyMessage={t("noLanguageEntries")}
+          >
+            {languagesQuery.isLoading ? (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                <Skeleton variant="rounded" width={80} height={24} />
+                <Skeleton variant="rounded" width={70} height={24} />
+              </Box>
+            ) : (
+              languagesQuery.data?.slice(0, 6).map((lang: Language) => (
+                <Chip
+                  key={lang.id}
+                  label={`${lang.languageName}${lang.proficiencyLevel ? ` • ${lang.proficiencyLevel}` : ""}`}
+                  size="small"
+                  variant="outlined"
+                />
+              ))
+            )}
           </SectionCard>
         </Box>
       )}

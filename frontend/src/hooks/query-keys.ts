@@ -14,6 +14,8 @@ export const queryKeys = {
     skill: (id: string) => [...users.skills(), id] as const,
     projects: () => [...users.all, "projects"] as const,
     project: (id: string) => [...users.projects(), id] as const,
+    languages: () => [...users.all, "languages"] as const,
+    language: (id: string) => [...users.languages(), id] as const,
   },
   jobAds: {
     all: ["job-ads"] as const,

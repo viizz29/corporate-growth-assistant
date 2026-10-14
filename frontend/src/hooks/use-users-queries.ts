@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import {
   listEducationsApi,
   createEducationApi,
@@ -16,11 +17,16 @@ import {
   createProjectApi,
   updateProjectApi,
   deleteProjectApi,
+  listLanguagesApi,
+  createLanguageApi,
+  updateLanguageApi,
+  deleteLanguageApi,
   type EducationInput,
   type WorkExperienceInput,
   type SkillInput,
   type ProjectInput,
 } from "@/api/users-api";
+
 import { queryKeys } from "./query-keys";
 
 // ─── Education ──────────────────────────────────────────
@@ -156,5 +162,38 @@ export function useDeleteProjectMutation() {
   return useMutation({
     mutationFn: deleteProjectApi,
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.users.projects() }),
+  });
+}
+
+// ─── Languages ──────────────────────────────────────────
+
+export function useLanguagesQuery() {
+  return useQuery({
+    queryKey: queryKeys.users.languages(),
+    queryFn: listLanguagesApi,
+  });
+}
+
+export function useCreateLanguageMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: createLanguageApi,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.users.languages() }),
+  });
+}
+
+export function useUpdateLanguageMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: updateLanguageApi,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.users.languages() }),
+  });
+}
+
+export function useDeleteLanguageMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteLanguageApi,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.users.languages() }),
   });
 }

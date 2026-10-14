@@ -68,11 +68,13 @@ describe('ResumesService', () => {
     workExperiences: [],
     projects: [],
     educations: [],
+    languages: [],
     omittedItemIds: {
       skillIds: [],
       workExperienceIds: [],
       projectIds: [],
       educationIds: [],
+      languageIds: [],
     },
   };
 
@@ -146,6 +148,12 @@ describe('ResumesService', () => {
           provide: UserProjectRepository,
           useValue: {
             findAllByUserId: jest.fn(),
+          },
+        },
+        {
+          provide: require('../users/user-language.repository').UserLanguageRepository,
+          useValue: {
+            findByUserId: jest.fn().mockResolvedValue([]),
           },
         },
         {
@@ -364,7 +372,7 @@ describe('ResumesService', () => {
       const writtenFile = path.join(
         tempDir,
         'resumes',
-        path.basename(createArgs.filePath),
+        path.basename(createArgs.filePath as string),
       );
       expect(fs.existsSync(writtenFile)).toBe(true);
 

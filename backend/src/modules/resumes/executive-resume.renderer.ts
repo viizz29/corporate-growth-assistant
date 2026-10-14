@@ -111,6 +111,33 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
         fontSize: 9,
         marginBottom: 5,
       },
+      languageRow: {
+        marginBottom: 7,
+      },
+      languageHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 3,
+      },
+      languageName: {
+        fontSize: 9,
+        fontWeight: 700,
+        color: '#7c2d12',
+      },
+      languageLevel: {
+        fontSize: 8,
+        color: '#a16207',
+      },
+      languageBarTrack: {
+        height: 6,
+        backgroundColor: '#fed7aa',
+        borderRadius: 3,
+      },
+      languageBarFill: {
+        height: 6,
+        backgroundColor: '#ea580c',
+        borderRadius: 3,
+      },
     });
 
     return this.createDocument(
@@ -266,6 +293,17 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
                           ? `• ${skill.skillName} - ${skill.proficiencyLevel}`
                           : `• ${skill.skillName}`,
                       ),
+                    ),
+                  ),
+                ]
+              : []),
+            ...(this.getResumeLanguages(data).length
+              ? [
+                  this.view(
+                    styles.section,
+                    this.text(styles.sectionTitle, labels.languages),
+                    ...this.getResumeLanguages(data).map((language) =>
+                      this.createLanguageBar(styles, language),
                     ),
                   ),
                 ]

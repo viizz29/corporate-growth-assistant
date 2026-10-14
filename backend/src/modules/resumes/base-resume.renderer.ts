@@ -14,6 +14,7 @@ import type { ResumeTemplate } from './resume-template.model';
 import type {
   ResumeRenderData,
   ResumeTemplateRenderer,
+  TailoredResumeLanguage,
 } from './resume-render.types';
 
 type ResumeLabels = {
@@ -25,6 +26,7 @@ type ResumeLabels = {
   education: string;
   skills: string;
   projects: string;
+  languages: string;
   techStack: string;
   present: string;
 };
@@ -82,6 +84,7 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
         education: 'शिक्षा',
         skills: 'कौशल',
         projects: 'प्रोजेक्ट्स',
+        languages: 'भाषाएँ',
         techStack: 'टेक स्टैक',
         present: 'वर्तमान',
       };
@@ -96,6 +99,7 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
       education: 'Education',
       skills: 'Skills',
       projects: 'Projects',
+      languages: 'Languages',
       techStack: 'Tech Stack',
       present: 'Present',
     };
@@ -123,6 +127,88 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
 
   protected getResumeEducations(data: ResumeRenderData) {
     return data.tailoredContent.educations;
+  }
+
+  protected getResumeLanguages(data: ResumeRenderData) {
+    return data.tailoredContent.languages;
+  }
+
+  private static readonly languageProficiencyRatios: ReadonlyArray<{
+    keywords: string[];
+    ratio: number;
+  }> = [
+    {
+      keywords: ['native', 'mother tongue', 'bilingual', 'मातृभाषा'],
+      ratio: 1,
+    },
+    {
+      keywords: ['fluent', 'full professional', 'धाराप्रवाह'],
+      ratio: 0.9,
+    },
+    { keywords: ['advanced', 'उन्नत'], ratio: 0.8 },
+    {
+      keywords: ['intermediate', 'conversational', 'working', 'मध्यवर्ती'],
+      ratio: 0.6,
+    },
+    {
+      keywords: ['elementary', 'basic', 'beginner', 'प्रारंभिक'],
+      ratio: 0.3,
+    },
+  ];
+
+  protected getLanguageProficiencyRatio(level?: string | null): number {
+    if (!level) {
+      return 0.5;
+    }
+
+    const normalized = level.trim().toLowerCase();
+    if (!normalized) {
+      return 0.5;
+    }
+
+    const match = BaseResumeRenderer.languageProficiencyRatios.find((entry) =>
+      entry.keywords.some((keyword) => normalized.includes(keyword)),
+    );
+
+    return match ? match.ratio : 0.5;
+  }
+
+  protected createLanguageBar(
+    styles: ReturnType<typeof StyleSheet.create>,
+    language: TailoredResumeLanguage,
+  ): ReactElement {
+    const ratio = this.getLanguageProficiencyRatio(language.proficiencyLevel);
+
+    return React.createElement(
+      View,
+      { key: language.id, style: styles.languageRow as any },
+      React.createElement(
+        View,
+        { style: styles.languageHeader as any },
+        React.createElement(
+          Text,
+          { style: styles.languageName as any },
+          language.languageName,
+        ),
+        language.proficiencyLevel
+          ? React.createElement(
+              Text,
+              { style: styles.languageLevel as any },
+              language.proficiencyLevel,
+            )
+          : null,
+      ),
+      React.createElement(
+        View,
+        { style: styles.languageBarTrack as any },
+        React.createElement(View, {
+          style: [
+            styles.languageBarFill as any,
+            { width: `${Math.round(ratio * 100)}%` },
+          ],
+        }),
+      ),
+    );
   }
 
   protected createFallbackSummary(data: ResumeRenderData): string {
@@ -192,14 +278,18 @@ export abstract class BaseResumeRenderer implements ResumeTemplateRenderer {
     return StyleSheet.create(styles);
   }
 
-  protected text(style: any, value: string): ReactElement {
-    return React.createElement(Text, { style }, value);
+  protected text(style: unknown, value: string): ReactElement {
+    return React.createElement(Text, { style } as any, value);
   }
 
   protected view(
-    style: any,
+    style: unknown,
     ...children: Array<ReactElement | null>
   ): ReactElement {
-    return React.createElement(View, { style }, ...children.filter(Boolean));
+    return React.createElement(
+      View,
+      { style } as any,
+      ...children.filter(Boolean),
+    );
   }
 }

@@ -115,6 +115,33 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
         borderRadius: 10,
         marginBottom: 6,
       },
+      languageRow: {
+        marginBottom: 8,
+      },
+      languageHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 4,
+      },
+      languageName: {
+        fontSize: 9,
+        fontWeight: 700,
+        color: '#134e4a',
+      },
+      languageLevel: {
+        fontSize: 8,
+        color: '#0f766e',
+      },
+      languageBarTrack: {
+        height: 6,
+        backgroundColor: '#99f6e4',
+        borderRadius: 3,
+      },
+      languageBarFill: {
+        height: 6,
+        backgroundColor: '#0f766e',
+        borderRadius: 3,
+      },
     });
 
     return this.createDocument(
@@ -271,6 +298,17 @@ export class ModernResumeRenderer extends BaseResumeRenderer {
                           ? this.text(styles.paragraph, education.description)
                           : null,
                       ),
+                    ),
+                  ),
+                ]
+              : []),
+            ...(this.getResumeLanguages(data).length
+              ? [
+                  this.view(
+                    styles.section,
+                    this.text(styles.sectionTitle, labels.languages),
+                    ...this.getResumeLanguages(data).map((language) =>
+                      this.createLanguageBar(styles, language),
                     ),
                   ),
                 ]

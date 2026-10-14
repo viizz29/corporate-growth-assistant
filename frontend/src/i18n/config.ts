@@ -63,12 +63,21 @@ i18n.use(initReactI18next).init({
         WorkExperience: "Work Experience",
         Skills: "Skills",
         Projects: "Projects",
+        Languages: "Languages",
         "Personal Info": "Personal Info",
         Summary: "Summary",
         "noEducationEntries": "No education entries yet. Add your first education.",
         "noWorkExperienceEntries": "No work experience entries yet. Add your first entry.",
         "noSkillsEntries": "No skills yet. Add your first skill.",
         "noProjectEntries": "No projects yet. Add your first project.",
+        "noLanguageEntries": "No languages yet. Add your first language.",
+        "Add Language": "Add Language",
+        "Edit Language": "Edit Language",
+        "Language name": "Language name",
+        "Proficiency level": "Proficiency level",
+        "e.g. English": "e.g. English",
+        "e.g. Native, Fluent, Intermediate, Basic": "e.g. Native, Fluent, Intermediate, Basic",
+        "Language name is required": "Language name is required",
 
         // Validation
         invalidEmail: "Invalid email",
@@ -239,6 +248,7 @@ i18n.use(initReactI18next).init({
         WorkExperience: "कार्य अनुभव",
         Skills: "कौशल",
         Projects: "प्रोजेक्ट",
+        Languages: "भाषाएँ",
         "Personal Info": "व्यक्तिगत जानकारी",
         Summary: "सारांश",
         noEducationEntries:
@@ -249,6 +259,14 @@ i18n.use(initReactI18next).init({
           "अभी तक कोई कौशल नहीं। अपना पहला कौशल जोड़ें।",
         noProjectEntries:
           "अभी तक कोई प्रोजेक्ट नहीं। अपना पहला प्रोजेक्ट जोड़ें।",
+        "noLanguageEntries": "अभी तक कोई भाषा नहीं। अपनी पहली भाषा जोड़ें।",
+        "Add Language": "भाषा जोड़ें",
+        "Edit Language": "भाषा संपादित करें",
+        "Language name": "भाषा का नाम",
+        "Proficiency level": "प्रवीणता स्तर",
+        "e.g. English": "जैसे अंग्रेजी",
+        "e.g. Native, Fluent, Intermediate, Basic": "जैसे मूल, धाराप्रवाह, मध्यवर्ती, बेसिक",
+        "Language name is required": "भाषा का नाम आवश्यक है",
 
         // Validation
         invalidEmail: "अमान्य ईमेल",

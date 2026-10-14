@@ -178,3 +178,45 @@ export const updateProjectApi = async (
 export const deleteProjectApi = async (id: string): Promise<void> => {
   await api.delete(`/api/v1/users/projects/${id}`);
 };
+
+// ─── Languages ──────────────────────────────────────────
+
+export type Language = {
+  id: string;
+  languageName: string;
+  proficiencyLevel: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LanguageInput = {
+  languageName: string;
+  proficiencyLevel?: string | null;
+};
+
+export async function listLanguagesApi(): Promise<Language[]> {
+  const response = await api.get("/api/v1/users/languages");
+  return response.data;
+}
+
+export async function createLanguageApi(
+  data: LanguageInput,
+): Promise<Language> {
+  const response = await api.post("/api/v1/users/languages", data);
+  return response.data;
+}
+
+export async function updateLanguageApi(params: {
+  id: string;
+  data: Partial<LanguageInput>;
+}): Promise<Language> {
+  const response = await api.patch(
+    `/api/v1/users/languages/${params.id}`,
+    params.data,
+  );
+  return response.data;
+}
+
+export async function deleteLanguageApi(id: string): Promise<void> {
+  await api.delete(`/api/v1/users/languages/${id}`);
+}

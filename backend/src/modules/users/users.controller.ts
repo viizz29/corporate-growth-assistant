@@ -40,6 +40,9 @@ import {
   ApiTags,
   ApiBody,
 } from '@nestjs/swagger';
+import { UserContactDetailResponseDto } from './dto/user-contact-detail-response.dto';
+import { ContactDetailService } from './contact-detail.service';
+import { UpdateContactDetailsDto } from './dto/update-contact-details.dto';
 
 @ApiTags('users')
 @Controller('v1/users')
@@ -47,6 +50,7 @@ import {
 export class UsersController {
   constructor(
     private usersService: UsersService,
+    private contactDetailService: ContactDetailService,
     private educationService: EducationService,
     private workExperienceService: WorkExperienceService,
     private skillService: SkillService,
@@ -74,6 +78,30 @@ export class UsersController {
     @CurrentUser() user: { userId: string },
   ) {
     return this.usersService.update(user.userId, dto);
+  }
+
+  @SkipEmailVerification()
+  @Get('contact-details')
+  @ApiOperation({ summary: 'Get the authenticated user contact details' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the authenticated user contact details.',
+    type: UserContactDetailResponseDto,
+  })
+  getContactDetails(@CurrentUser() user: { userId: string }) {
+    return this.contactDetailService.findByUserId(user.userId);
+  }
+
+  @SkipEmailVerification()
+  @Patch('contact-details')
+  @ApiOperation({ summary: 'Update contact details' })
+  @ApiBody({ type: UpdateContactDetailsDto })
+  @ApiResponse({ status: 201, description: 'Contact Details Updated.' })
+  updateContactDetails(
+    @Body() dto: UpdateContactDetailsDto,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.contactDetailService.update(user.userId, dto);
   }
 
   @SkipEmailVerification()

@@ -19,11 +19,15 @@ import { ProjectService } from './project.service';
 import { UserLanguage } from './user-language.model';
 import { UserLanguageRepository } from './user-language.repository';
 import { LanguageService } from './language.service';
+import { ContactDetailService } from './contact-detail.service';
+import { UserContactDetail } from './user-contact-details.model';
+import { UserContactDetailsRepository } from './user-contact-details.repository';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([
       User,
+      UserContactDetail,
       UserEducation,
       UserWorkExperience,
       UserSkill,
@@ -34,6 +38,8 @@ import { LanguageService } from './language.service';
   providers: [
     UsersService,
     UserRepository,
+    UserContactDetailsRepository,
+    ContactDetailService,
     UserEducationRepository,
     EducationService,
     UserWorkExperienceRepository,
@@ -48,6 +54,7 @@ import { LanguageService } from './language.service';
   controllers: [UsersController],
   exports: [
     UserRepository,
+    UserContactDetailsRepository,
     UserEducationRepository,
     UserWorkExperienceRepository,
     UserSkillRepository,

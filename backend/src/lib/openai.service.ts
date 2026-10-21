@@ -276,18 +276,13 @@ export class OpenAiService {
       },
     ];
 
-    console.log(messages);
-
     const content = await this.requestJsonCompletion(messages, 10000); // 1400
-
-    console.log({ content });
 
     const parsed = this.parseJson<ResumeTailoringAiResult>(content);
     if (!parsed || !this.isValidResumeTailoringResult(parsed)) {
+      console.log('Error: Could not parse the AI response.');
       return null;
     }
-
-    console.log(parsed);
 
     return {
       ...parsed,

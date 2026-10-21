@@ -278,7 +278,7 @@ export class OpenAiService {
 
     console.log(messages);
 
-    const content = await this.requestJsonCompletion(messages, 1400);
+    const content = await this.requestJsonCompletion(messages, 10000); // 1400
 
     console.log({ content });
 

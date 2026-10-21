@@ -282,6 +282,9 @@ export class OpenAiService {
       return null;
     }
 
+    console.log(messages);
+    console.log(parsed);
+
     return {
       ...parsed,
       rawResponse: content,
@@ -390,11 +393,14 @@ export class OpenAiService {
       Array.isArray(value.omittedItemIds.workExperienceIds) &&
       Array.isArray(value.omittedItemIds.projectIds) &&
       Array.isArray(value.omittedItemIds.educationIds) &&
-      (!value.selectedLanguageIds || Array.isArray(value.selectedLanguageIds)) &&
-      (!value.omittedItemIds.languageIds || Array.isArray(value.omittedItemIds.languageIds)) &&
+      (!value.selectedLanguageIds ||
+        Array.isArray(value.selectedLanguageIds)) &&
+      (!value.omittedItemIds.languageIds ||
+        Array.isArray(value.omittedItemIds.languageIds)) &&
       value.selectedSkillIds.every((id) => typeof id === 'string') &&
       value.selectedEducationIds.every((id) => typeof id === 'string') &&
-      (!value.selectedLanguageIds || value.selectedLanguageIds.every((id) => typeof id === 'string')) &&
+      (!value.selectedLanguageIds ||
+        value.selectedLanguageIds.every((id) => typeof id === 'string')) &&
       value.selectedWorkExperiences.every(
         (item) =>
           !!item &&

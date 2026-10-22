@@ -21,6 +21,7 @@ import {
   useLanguagesQuery,
 } from "@/hooks/use-users-queries";
 import type { Language } from "@/api/users-api";
+import { useContactDetailsQuery } from "@/hooks/use-contact-details-queries";
 
 function SectionCard({
   title,
@@ -68,6 +69,7 @@ export default function ProfilePage() {
   const { t } = useTranslation();
   const { user } = useAuth();
 
+  const contactDetailsQuery = useContactDetailsQuery();
   const educationsQuery = useEducationsQuery();
   const workQuery = useWorkExperiencesQuery();
   const skillsQuery = useSkillsQuery();
@@ -92,14 +94,23 @@ export default function ProfilePage() {
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5">{user?.name || t("noName")}</Typography>
             <Typography variant="body2" color="text.secondary">
-              {user?.email}
+              {contactDetailsQuery.data?.email}
             </Typography>
-            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              {contactDetailsQuery.data?.phone}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {contactDetailsQuery.data?.linkedinUrl}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {contactDetailsQuery.data?.githubUrl}
+            </Typography>
+            {/* <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
               {user?.role && <Chip label={user.role} size="small" />}
               {user?.isEmailVerified && (
                 <Chip label={t("verified")} size="small" color="success" variant="outlined" />
               )}
-            </Box>
+            </Box> */}
           </Box>
           <Button
             component={Link}

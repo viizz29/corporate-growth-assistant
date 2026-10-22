@@ -30,6 +30,7 @@ export class UpdateContactDetailsDto {
       'phone must start with + and a valid country code, followed by the phone number (e.g., +919876543210)',
   })
   @Length(9, 16)
+  @IsOptional()
   phone?: string | null;
 
   @ApiPropertyOptional({

@@ -6,6 +6,7 @@ export const queryKeys = {
   },
   users: {
     all: ["users"] as const,
+    contactDetails: () => [...users.all, "contact-details"] as const,
     educations: () => [...users.all, "educations"] as const,
     education: (id: string) => [...users.educations(), id] as const,
     workExperiences: () => [...users.all, "work-experiences"] as const,

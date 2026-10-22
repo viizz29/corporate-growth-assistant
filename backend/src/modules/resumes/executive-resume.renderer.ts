@@ -148,7 +148,13 @@ export class ExecutiveResumeRenderer extends BaseResumeRenderer {
           View,
           { style: styles.masthead },
           React.createElement(Text, { style: styles.name }, data.user.name),
-          React.createElement(Text, { style: styles.contact }, data.user.email),
+          data.userContactDetail?.email
+            ? React.createElement(
+                Text,
+                { style: styles.contact },
+                data.userContactDetail.email,
+              )
+            : null,
           React.createElement(
             Text,
             { style: styles.roleLine },

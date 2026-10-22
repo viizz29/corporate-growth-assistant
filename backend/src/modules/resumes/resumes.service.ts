@@ -26,6 +26,8 @@ import type { UserWorkExperience } from '../users/user-work-experience.model';
 import type { UserLanguage } from '../users/user-language.model';
 import type { ResumeTemplate } from './resume-template.model';
 import type { TailoredResumeContent } from './resume-render.types';
+import { UserContactDetail } from '../users/user-contact-details.model';
+import { UserContactDetailsRepository } from '../users/user-contact-details.repository';
 
 @Injectable()
 export class ResumesService {
@@ -36,6 +38,7 @@ export class ResumesService {
     private readonly generatedResumeRepository: GeneratedResumeRepository,
     private readonly userRepository: UserRepository,
     private readonly jobAdRepository: JobAdvertisementRepository,
+    private readonly contactDetailRepository: UserContactDetailsRepository,
     private readonly educationRepository: UserEducationRepository,
     private readonly workExperienceRepository: UserWorkExperienceRepository,
     private readonly skillRepository: UserSkillRepository,
@@ -104,15 +107,23 @@ export class ResumesService {
       );
     }
 
-    const [user, educations, workExperiences, skills, projects, languages] =
-      await Promise.all([
-        this.userRepository.findById(userId),
-        this.educationRepository.findAllByUserId(userId),
-        this.workExperienceRepository.findAllByUserId(userId),
-        this.skillRepository.findAllByUserId(userId),
-        this.projectRepository.findAllByUserId(userId),
-        this.languageRepository.findByUserId(userId),
-      ]);
+    const [
+      user,
+      contactDetails,
+      educations,
+      workExperiences,
+      skills,
+      projects,
+      languages,
+    ] = await Promise.all([
+      this.userRepository.findById(userId),
+      this.contactDetailRepository.findByUserId(userId),
+      this.educationRepository.findAllByUserId(userId),
+      this.workExperienceRepository.findAllByUserId(userId),
+      this.skillRepository.findAllByUserId(userId),
+      this.projectRepository.findAllByUserId(userId),
+      this.languageRepository.findByUserId(userId),
+    ]);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -132,6 +143,7 @@ export class ResumesService {
     });
     const { relativePath } = await this.buildPdf(
       user,
+      contactDetails,
       jobAd,
       educations,
       workExperiences,
@@ -177,15 +189,23 @@ export class ResumesService {
       throw new NotFoundException('Resume template not found or inactive');
     }
 
-    const [user, educations, workExperiences, skills, projects, languages] =
-      await Promise.all([
-        this.userRepository.findById(userId),
-        this.educationRepository.findAllByUserId(userId),
-        this.workExperienceRepository.findAllByUserId(userId),
-        this.skillRepository.findAllByUserId(userId),
-        this.projectRepository.findAllByUserId(userId),
-        this.languageRepository.findByUserId(userId),
-      ]);
+    const [
+      user,
+      contactDetails,
+      educations,
+      workExperiences,
+      skills,
+      projects,
+      languages,
+    ] = await Promise.all([
+      this.userRepository.findById(userId),
+      this.contactDetailRepository.findByUserId(userId),
+      this.educationRepository.findAllByUserId(userId),
+      this.workExperienceRepository.findAllByUserId(userId),
+      this.skillRepository.findAllByUserId(userId),
+      this.projectRepository.findAllByUserId(userId),
+      this.languageRepository.findByUserId(userId),
+    ]);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -205,6 +225,7 @@ export class ResumesService {
     });
     const { relativePath } = await this.buildPdf(
       user,
+      contactDetails,
       null,
       educations,
       workExperiences,
@@ -293,6 +314,7 @@ export class ResumesService {
 
   private async buildPdf(
     user: User,
+    userContactDetail: UserContactDetail | null,
     jobAd: JobAdvertisement | null,
     educations: UserEducation[],
     workExperiences: UserWorkExperience[],
@@ -317,6 +339,7 @@ export class ResumesService {
 
     const pdfBuffer = await this.resumesPdfService.render({
       user,
+      userContactDetail,
       jobAd,
       educations,
       workExperiences,

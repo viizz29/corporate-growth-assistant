@@ -1,12 +1,13 @@
 import type { ReactElement } from 'react';
 import type { JobAdvertisement } from '../job-ads/job-advertisement.model';
-import type { User } from '../users/user.model';
 import type { UserEducation } from '../users/user-education.model';
 import type { UserProject } from '../users/user-project.model';
 import type { UserSkill } from '../users/user-skill.model';
 import type { UserWorkExperience } from '../users/user-work-experience.model';
 import type { UserLanguage } from '../users/user-language.model';
 import type { ResumeTemplate } from './resume-template.model';
+import type { UserContactDetail } from '../users/user-contact-details.model';
+import type { User } from '../users/user.model';
 
 export type TailoredResumeSkill = {
   id: string;
@@ -70,6 +71,7 @@ export type TailoredResumeContent = {
 
 export type ResumeRenderData = {
   user: User;
+  userContactDetail: UserContactDetail | null;
   jobAd: JobAdvertisement | null;
   educations: UserEducation[];
   workExperiences: UserWorkExperience[];

@@ -164,11 +164,34 @@ export class ClassicResumeRenderer extends BaseResumeRenderer {
             View,
             { style: styles.headerIdentity },
             React.createElement(Text, { style: styles.name }, data.user.name),
-            React.createElement(
-              Text,
-              { style: styles.contact },
-              data.user.email,
-            ),
+            data.userContactDetail?.email
+              ? React.createElement(
+                  Text,
+                  { style: styles.contact },
+                  data.userContactDetail.email,
+                )
+              : null,
+            data.userContactDetail?.phone
+              ? React.createElement(
+                  Text,
+                  { style: styles.contact },
+                  data.userContactDetail.phone,
+                )
+              : null,
+            data.userContactDetail?.linkedinUrl
+              ? React.createElement(
+                  Text,
+                  { style: styles.contact },
+                  data.userContactDetail.linkedinUrl,
+                )
+              : null,
+            data.userContactDetail?.githubUrl
+              ? React.createElement(
+                  Text,
+                  { style: styles.contact },
+                  data.userContactDetail.githubUrl,
+                )
+              : null,
           ),
           React.createElement(
             View,

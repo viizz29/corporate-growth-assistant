@@ -15,12 +15,12 @@ type ProfileFormValues = {
   linkedinUrl: string;
 };
 
-const emptyValues: ProfileFormValues = {
-  email: "",
-  phone: "",
-  githubUrl: "",
-  linkedinUrl: "",
-};
+// const emptyValues: ProfileFormValues = {
+//   email: "",
+//   phone: "",
+//   githubUrl: "",
+//   linkedinUrl: "",
+// };
 
 const profileSchema = Yup.object({
 
@@ -94,7 +94,7 @@ export default function PersonalInfoPage() {
     }
 
     contactDetailsMutation.mutate(changedFields, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         toast.success("Profile updated successfully");
         navigate("/profile");
       },

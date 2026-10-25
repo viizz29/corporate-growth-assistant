@@ -15,6 +15,7 @@ export default Joi.object({
   REDIS_USER: Joi.string().default('default'),
   REDIS_PASSWORD: Joi.string().default(''),
 
+  DB_PORT: Joi.number().default(5432),
   DB_HOST: Joi.string().default('127.0.0.1'),
   DB_DATABASE: Joi.string().required(),
   DB_PASSWORD: Joi.string().required(),

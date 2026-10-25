@@ -37,7 +37,7 @@ const imports = [
     useFactory: (config: ConfigService) => {
       return {
         dialect: 'postgres',
-        port: 5432,
+        port: config.getOrThrow('DB_PORT'),
 
         dialectOptions:
           process.env.NODE_ENV === 'production'
